@@ -1,0 +1,41 @@
+hav[dphi_,phis_,phif_,dlam_] := 
+  2*ArcSin[Sqrt[
+                (Sin[dphi/2])^2 + Cos[phis]*Cos[phif]*(Sin[dlam/2])^2
+                ]]
+
+
+gcd[pos1_,pos2_]  :=
+  Module[{dphi,phis,phif,dlam},
+  dphi = pos1[[1]]-pos2[[1]];
+  phis = pos1[[1]];
+  phif = pos2[[1]];
+  dlam = pos1[[2]]-pos2[[2]];
+  hav[dphi,phis,phif,dlam]
+  ]
+
+RH  = {52206275,  -0025892} * Pi/180 / 10^6
+RH  = {52206367,  -0025846} * Pi/180 / 10^6
+EC  = {52398657,   0263873} * Pi/180 / 10^6
+LO  = {52476138,   0381944} * Pi/180 / 10^6
+
+
+RHEC = gcd[RH,EC]
+RHLO = gcd[RH,LO]
+ECLO = gcd[EC,LO]
+
+
+sina = Sin[RHEC]
+sinb = Sin[RHLO]
+sinc = Sin[ECLO]
+
+cosa = Cos[RHEC]
+cosb = Cos[RHLO]
+cosc = Cos[ECLO]
+
+RADIUSOFEARTH = 6378000 
+
+
+
+angle1 = ArcCos[(cosc-cosa*cosb)/(sina*sinb)] (* EC-LO-RH *)
+angle2 = ArcCos[(cosa-cosb*cosc)/(sinb*sinc)] (* LO-RH-EC *)
+angle3 = ArcCos[(cosb-cosc*cosa)/(sinc*sina)] (* RH-EC-LO *)

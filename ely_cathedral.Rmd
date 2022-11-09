@@ -18,6 +18,7 @@ hav <- function(dphi,phis,phif,dlam){ #  Haversine formula
                 (sin(dphi/2))^2 + cos(phis)*cos(phif)*(sin(dlam/2))^2
                 ))
 }
+```
 
 ```{r definegcd}
 gcd <- function(pos1,pos2){  # great circle distance
@@ -72,13 +73,13 @@ gc_dist
 Calculate the sines and cosines:
 
 ```{r}
-sin_a <- sin(RH_EC)
-sin_b <- sin(RH_LO)
-sin_c <- sin(EC_LO)
+sin_a <- sin(EC_LO)
+sin_b <- sin(LO_RH)
+sin_c <- sin(RH_EC)
 
-cos_a <- cos(RH_EC)
-cos_b <- cos(RH_LO)
-cos_c <- cos(EC_LO)
+cos_a <- cos(EC_LO)
+cos_b <- cos(LO_RH)
+cos_c <- cos(RH_EC)
 
 RADIUS_OF_EARTH <- 6378000 
 ```
@@ -92,7 +93,8 @@ angle2 <- acos((cos_a-cos_b*cos_c)/(sin_b*sin_c))
 angle3 <- acos((cos_b-cos_c*cos_a)/(sin_c*sin_a))
 
 angles <- c(angle1,angle2,angle3)
-names(angles) <-  c("EC_RH_LO","LO_EC_RH","EC_RH_LO")
+names(angles) <-  c(
+"EC_LO_RH","LO_RH_EC","RH_EC_LO")
 angles
 ```
 
@@ -104,19 +106,72 @@ dist <- RADIUS_OF_EARTH*gcd(LO,RH)*c(angle1,angle2)
 dist
 ```
 
-Above, the elements of `dist` show the distance from RH-EC (produced) to LO, and LO-EC (produced) to RH, in meters.  See how small these values are!  And secondly we can calculate the excess angle:
+Above, the elements of `dist` show the distance from RH-EC (produced)
+to LO, and LO-EC (produced) to RH, in *meters*.  See how small these
+values are!  And secondly we can calculate the excess angle:
+
 
 ```{r}
 (E <- sum(angles) - pi)
 (area <- E*RADIUS_OF_EARTH^2)
 ```
 
+Something is very wrong here as the excess angle is negative.  This
+is, I think, due to rounding error.  Running the same formulae through
+mathematica [file `ely.mma`] gives:
 
+```
+In[127]:= N[angle1+angle2+angle3-Pi]                                                                                                                                                                           
 
+                     -9
+Out[127]= -5.66402 10
+```
 
-Now, introduce an ellipsoidal earth:
+showing that Mathematica's default numerical precision gives pretty
+much the same result.  However, we can force Mathematica to use more
+digits in its evaluation:
+
+```
+In[128]:= N[angle1+angle2+angle3-Pi,digits=20]                                                                                                                                                                 
+
+                                  -9
+Out[128]= 5.5405140041818607405 10
+```
+
+which give a positive answer (which turns out to be reasonably
+robust).  I do not know why the results are so similar in magnitude.
+However, we can use this value to calculate the area of the triangle:
+
 
 ```{r}
+(area <- 5.540514e-9*RADIUS_OF_EARTH^2)
+```
+
+Perhaps the area in square kilometers is more interesting:
+
+```{r}
+area/1e6  
+```
+
+Using the approximation of plane triangle in which area is half base
+times height, we might ask how close line RH-LO passes EC:
+
+```{r}
+2*area/(gcd(LO,RH)*RADIUS_OF_EARTH)
+```
+
+that is, about eleven meters.
+
+
+# Ellipsoidal earth
+
+
+
+
+Now, introduce an ellipsoidal earth.  We will use WGS-84, and assume
+that the latitude given by Google Maps is geodetic latitude.
+
+```{r, echo=FALSE}
 lambert_distance <- function(p1,p2){
   f <- 1/298.257223563    # WGS-84
 
@@ -183,28 +238,45 @@ vincenty <- function(p1,p2){ # p1 and p2 are point 1 and point 2, (geodetic) lat
 
 ```{r}
 lamb <- c(
- lambert_distance(RH,EC),
- lambert_distance(RH,LO),
-lambert_distance(EC,LO))
-names(lamb) <- c("RH_EC","RH_LO","EC_LO")
+ lambert_distance(EC,LO),
+ lambert_distance(LO,RH),
+ lambert_distance(RH,EC))
+names(lamb) <- c("EC_LO","LO_RH","RH_EC")
 lamb
-gc_dist
-lamb - gc_dist
 ```
 
+Above, `lamb` refers to the Lambert distance function, defined on the
+ellipsoidal earth.  The distances are very similar to those
+calculated on the great circle:
+
+```{r}
+gc_dist
+lamb - gc_dist
+(lamb - gc_dist)/gc_dist
+(lamb - gc_dist) * RADIUS_OF_EARTH
+```
+
+So the ellipsoidal distances are less than the spherical distances by
+about 10-30 meters (although most of this is because the local radius
+differs from the average radius of the earth at this point).  We can
+go on to use function `vincenty()` to solve the inverse problem.  The
+inverse problem is this: given two points, calculate the path between
+them of minimal length.  We are interested in the initial and final
+azimuth of the path.
 
 ```{r}
 
 vincenty(RH,LO)[1]
 vincenty(RH,EC)[1]
 angles_gcd <- angles
-angles_gcd
 angles_lamb <- c(
-  vincenty(RH,LO)[1]-vincenty(RH,EC)[1],
   vincenty(LO,EC)[1]-vincenty(LO,RH)[1],
+  vincenty(RH,LO)[1]-vincenty(RH,EC)[1],
   vincenty(EC,LO)[1]-vincenty(EC,RH)[1])
+names(angles_lamb) <- c("EC_LO_RH","LO_RH_EC","RH_EC_LO")
 angles_lamb
-
-angles_lamb - angles_gcd
-
+rbind(angles_lamb,angles_gcd,angles_lamb - angles_gcd)
 ```
+
+We see that the angles under an ellipsoidal earth are slightly bigger
+than under the spherical earth.
