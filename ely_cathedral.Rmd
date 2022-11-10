@@ -133,21 +133,9 @@ a more sophisticated calculation and I'm putting it aside ...
 ```
 
 Below I reproduce the spherical analysis (in a modified and more
-reproducible form), and also follow up Ted's suggestion of allowing
-for oblateness.
-
-
-
-
-First we define the Haversine function and use it to calculate great circle distances, `gcd`()`:
-
-```{r definehaversinefunc}
-hav <- function(dphi,phis,phif,dlam){ #  Haversine formula 
-  2*asin(sqrt(
-                (sin(dphi/2))^2 + cos(phis)*cos(phif)*(sin(dlam/2))^2
-                ))
-}
-```
+reproducible form), and at the end I follow up Ted's suggestion of
+allowing for oblateness.  First we use the Haversine function to
+calculate great circle distances, `gcd()`:
 
 ```{r definegcd}
 gcd <- function(pos1,pos2){  # great circle distance
@@ -155,11 +143,19 @@ gcd <- function(pos1,pos2){  # great circle distance
   phis <- pos1[1]
   phif <- pos2[1]
   dlam <- pos1[2]-pos2[2]
-  hav(dphi,phis,phif,dlam)
+  2*asin(sqrt((sin(dphi/2))^2 + cos(phis)*cos(phif)*(sin(dlam/2))^2))
 }
 ```
 
-Now the latitude and longitude of three positions:  my house (`RH`), Ely Cathedral (`EC`) and Ted's house (`LO`, Little Ouse):
+Above we are using the explicit Haversine formula
+
+$$ 2r\arcsin\left(\sqrt{\sin^2\left(\frac{\varphi_2 -
+\varphi_1}{2}\right) + \cos \varphi_1 \cdot \cos \varphi_2 \cdot
+\sin^2\left(\frac{\lambda_2 - \lambda_1}{2}\right)}\right).$$
+
+
+Now the latitude and longitude of three positions: my house (`RH`),
+Ely Cathedral (`EC`) and Ted's house (`LO`, Little Ouse):
 
 ```{r latandlong}
 RH  <- c(phi=52.206275, lambda= -0.025892)  # deg N & E (front door)
@@ -167,6 +163,10 @@ RH  <- c(phi=52.206367, lambda=  -0.025846)
 EC  <- c(phi=52.398657, lambda=  0.263873)  # Centre of Ely Cath octagon
 LO  <- c(phi=52.476138, lambda=  0.381944)  # Chimneypot on my house at Little Ouse
 ```
+
+With these values, the two terms under the square root in the
+Haversine formula are both ${\sim}10^{-6}$.
+
 
 ```{r}
 LL <- rbind(RH,EC,LO)
@@ -177,6 +177,10 @@ plot(longx,latx,asp=1/(1-cos(mean(latx*pi/180))),type='b',xlab="longitude",ylab=
 for(i in 1:3){text(LL[i,2],LL[i,1],rownames(LL)[i],pos=4)}
 ```
 
+
+Above we see the three points, together with lines joining them,
+forming a very narrow triangle.  Visually, the points are on a
+straight line. 
 
 ```{r}
 RH <- RH*pi/180  # Convert to radians
