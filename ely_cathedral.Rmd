@@ -41,8 +41,10 @@ LO  <- c(phi=52.476138, lambda=  0.381944)  # Chimneypot on my house at Little O
 
 ```{r}
 LL <- rbind(RH,EC,LO)
-LL
-plot(LL[c(1,2,3,1),2:1],asp=1,type='b',xlab="longitude",ylab="latitude")
+latx  <- LL[c(1,2,3,1),1]
+longx <- LL[c(1,2,3,1),2]
+
+plot(longx,latx,asp=1/(1-cos(mean(latx*pi/180))),type='b',xlab="longitude",ylab="latitude")
 for(i in 1:3){text(LL[i,2],LL[i,1],rownames(LL)[i],pos=4)}
 ```
 
@@ -275,7 +277,7 @@ angles_lamb <- c(
   vincenty(EC,LO)[1]-vincenty(EC,RH)[1])
 names(angles_lamb) <- c("EC_LO_RH","LO_RH_EC","RH_EC_LO")
 angles_lamb
-rbind(angles_lamb,angles_gcd,angles_lamb - angles_gcd)
+rbind(angles_lamb,angles_gcd,diff=angles_lamb - angles_gcd)
 ```
 
 We see that the angles under an ellipsoidal earth are slightly bigger
