@@ -10,6 +10,135 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## A remarkable geographical coincidence
 
+Once upon a time I was collaborating with Ted Harding via email.  I
+was sitting at home, in Cambridge, and signed off with a short
+greeting.  Next morning I received this:
+
+```
+
+Hi Robin,
+You mentioned "a dark and damp Caldecote". This has suggested
+to me the possibility of one of those curious coincidences.
+
+To clinch it, can you send me the Lat & Long of your home?
+Preferably in whatever coordinate system Google Maps uses:
+to find out what they are, locate your home in Google Maps,
+move your mouse pointer over it, and (keeping it still) then
+right click.
+
+You will get a little drop-down menu at the bottom of which
+is "What's here?". Left-click on that, and the coordinates
+(degrees North and East as decimal fractions) will appear in
+the "Search Maps" box at the top.
+
+Once I have your coordinates (all 6 decimal places please) I will
+then compute the degree of agreement with my coincidental surmise!
+```
+
+I could not resist this; my reply:
+
+```
+
+Hello Ted
+
+a wonderful mystery!  My front door is, according to Google Maps,
+at 52.206275,-0.025892
+
+replicable?  Another try gives  52.206272,-0.025893
+
+Perhaps you need the back door, where I was
+sitting when I emailed you:  52.206367,-0.025846 and
+a replicate of  52.206373,-0.02585
+```
+
+
+Ted's Reply:
+
+
+```
+Hi Robin!
+The conjecture (prompted by visualising our respective geographies
+when you talked about "dark and damp Caldecote") was that a line
+drawn from Caldecote through Ely Cathedral and continued might pass
+fairly close to my house. A sample point in Caldecote confirmed this.
+I then wondered how close it would be if I had the precise coords of
+your house. Result: Very close indeed -- about 100 yards (though we
+are about 30 miles distant from each other: You to Ely Cath about
+20 miles; me to Ely Cath about 10 miles).
+
+To be precise now, the Google coords (in R-talk) are
+## Robin Hankin (front door)
+RH  <- c(52.206275,-0.025892)  # deg N & E (front door)
+EC  <- c(52.398657, 0.263873)  # Centre of Ely Cath octagon
+LO  <- c(52.476138, 0.381944)  # Chimneypot on my house at Little Ouse
+P   <- rbind(RH,EC,LO)         # Positions
+P.E <- P[,2] ; P.N<-P[,1]      # East & North
+
+# deg North at LO of the line from RH to EC:
+
+P.N[1] + ((P.E[3]-P.E[1])/(P.E[2]-P.E[1]))*(P.N[2]-P.N[1]) # 52.47705
+    ## (compare 52.476138)
+
+# Distance North of LO:
+(P.N[1] + ((P.E[3]-P.E[1])/(P.E[2]-P.E[1]))*(P.N[2]-P.N[1])) - P.N[3]
+##0.000909196    degrees Lat. 1 deg Lat ~= 69 statute miles:
+
+1760*69*0.000909196    # 110.4128 yards North of my chimney pot
+
+## Change RH to (52.206367,-0.025846) (back door)
+RH <- c(52.206367,-0.025846)
+## Result: 0.000884149 deg South of LO
+1760*69*0.000884149  # 107.3711  -- 3 yards closer
+######################################################################
+
+So my conjectured coincidence was pretty close! I'm not going to
+put a P-value on it, though -- there's an element of selection
+bias in there. Thanks for going along with the game!
+```
+
+Well I thought about it and decided to use spherical trigonometry to
+investigate.  I sent a brief analysis to Ted, in which I reported that
+the spherical analysis revealed an even more impressive coincidence.
+Ted's reply [my words preceded with a ">"]:
+
+```
+> Hello Ted
+> thanks for this!
+>
+> the best my wife and I could come up with was your identifying
+> a sudden rain event on a radar and noticing that it was over
+> Caldecote!
+
+Well, it was much more "psychological" than that! In fact your
+"dark and damp Caldecote" had suggested that conditions at Caldecote
+were more dire than they seemed to be around my neck of the woods,
+which prompted a mental image of where we respectively were. Since
+Ely is a sort of geographical "hub" for me, and I knew pretty well
+where Caldecote is, I suddenly saw all three lined up. A glance at
+my Road Atlas backed this up. Then the possibility of a really close
+coincidence for our respective residences occurred to me, and a
+sample calculation based on Google coords backed this up too.
+Then I got hooked and thought I'd try to track it down as precisely
+as possible. The rest is history.
+
+> Attached is a little script that uses the Haversine formula and
+> the spherical law of cosines  (lamentably assuming a spherical
+> earth), which calculates the shortest distance ('dist') between
+> the great circle path from your house to Ely Cathedral, and
+> my house.  I get 15m or so!
+
+A significant methodological improvement. And much closer! I wonder
+if allowing for oblateness would change things much; but that's
+a more sophisticated calculation and I'm putting it aside ...
+```
+
+Below I reproduce the spherical analysis (in a modified and more
+reproducible form), and also follow up Ted's suggestion of allowing
+for oblateness.
+
+
+
+
 First we define the Haversine function and use it to calculate great circle distances, `gcd`()`:
 
 ```{r definehaversinefunc}
