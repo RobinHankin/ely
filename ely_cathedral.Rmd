@@ -175,6 +175,9 @@ longx <- LL[c(1,2,3,1),2]
 
 plot(longx,latx,asp=1/(1-cos(mean(latx*pi/180))),type='b',xlab="longitude",ylab="latitude")
 for(i in 1:3){text(LL[i,2],LL[i,1],rownames(LL)[i],pos=4)}
+
+plot(longx,latx,asp=1/(1-cos(mean(latx*pi/180))),type='b',xlab="longitude",ylab="latitude",xlim=c(0.26,0.28),ylim=c(52.39,52.41))
+for(i in 1:3){text(LL[i,2],LL[i,1],rownames(LL)[i],pos=4)}
 ```
 
 
@@ -233,8 +236,9 @@ names(angles) <-  c(
 angles
 ```
 
-Observe how small two of the angle are, which was Ted's original observation.  We can interpret the
-smallness of the angles in two ways.  Firstly:
+Observe how small two of the angles are, the second of which was Ted's
+original observation.  We can interpret the smallness of the angles in
+two ways.  Firstly:
 
 ```{r}
 dist <- RADIUS_OF_EARTH*gcd(LO,RH)*c(angle1,angle2)
