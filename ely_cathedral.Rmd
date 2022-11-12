@@ -444,3 +444,61 @@ rbind(angles_lamb,angles_gcd,diff=angles_lamb - angles_gcd)
 
 We see that the angles under an ellipsoidal earth are slightly bigger
 than under the spherical earth.
+
+
+
+# Statistical analysis
+
+It would be nice to use the methods of inferential statistics to
+furnish some insight into this collinear coincidence.  However, I have
+not succeeded to date.  There does not seem to be a clear null
+hypothesis to test [and if there were, what would rejection of it
+mean?]; there is no credible alternative hypothesis; no family of
+distributions to consider; no statistical ensemble; and no likelihood
+approach seems to be appropriate.
+
+And as Ted says, there is certainly an element of selection bias in
+there.  Presumably we could condition on the fact that our houses were
+roughly aligned alongside Ely Cathedral.  But how rough is rough?
+
+Although the calculations consider EC, LO, and RH on equal footing, we
+prefer to consider, with Ted, that EC is the origin.  This is arguably
+preferable to working in an affine space.  Further, Ted---perfectly
+reasonably---considers _both_ EC and LO to be fixed: my house being
+notionally movable or randomly positioned, in some sense.
+
+One criterion often used for coincidences is to consider possible
+occurrences that are as surprising as the observation.  Typical
+examples would be coin-tossing, in which HHHHHH is held to be just as
+surprising as TTTTTT.  In the LO-EC-RH case, what observations might
+count as equally surprising as the one Ted saw?  In reality we see
+LO-EC-RH but surely LO-RH-EC [that is, RH in between LO and EC] or
+RH-LO-EC [LO between RH and EC] would be just as surprising.  Or
+perhaps if the EC-RH distance was exactly the same as the EC-LO
+distance.  Or perhaps EC-RH being perpendicular to EC-LO.  Or even RH
+being due North (or South, or East, or West?) of EC.  But none of
+these are as striking as collinearity of LO-EC-RH.
+
+Going the other way, what _more_ impressive coincidences might we
+consider?  The only sensible one is the double coincidence of both
+collinearity of LO-RC-RH _and_ equality of the LO-EC and EC-RH
+distances (arguably, simultaneous equidistance and perpendicularity
+might technically count, but this is lame at best).
+
+But it is not clear to what extent the selection bias should be
+incorporated in any null, or evaluation of any coincidence.  It is not
+clear whether we want to analyse the coincidence purely
+post-selection, or if our analysis should include an element of the
+selection process.  Besides, the selection process itself is poorly
+defined but whatever it is, surely it is at least part of the
+coincidence under investigation.
+
+However, it does not seem unreasonable to ask how close an alignment
+we could reasonably expect, on the basis of some process which
+includes an element of randomness.  We might also wish to quantify the
+unlikeliness of the observed close alignment.
+
+To do this, we fix EC and LO, and consider a point that is randomly
+chosen from locations where a collaborator might reasonably live.
+Observe that this approach contains zero selection bias: we are
+not considering any selection that Ted might have carried out.
