@@ -172,7 +172,7 @@ straight line; we can zoom in on Ely Cathedral:
 
 
 ```{r,echo=FALSE}
-RADIUS_OF_EARTH <- 6378000 
+RADIUS_OF_EARTH <- 6378137
 plot(
 	(longx-longx[2])*pi/180*RADIUS_OF_EARTH,
         (latx - latx[2])*pi/180*RADIUS_OF_EARTH*aspect,
@@ -235,7 +235,16 @@ gc_dist <- c(EC_LO,LO_RH,RH_EC)
 names(gc_dist) <- c("EC_LO","LO_RH","RH_EC")
 gc_dist
 ```
-}
+
+Above we see the three sides of the triangle expressed in radians; in
+meters we have:
+
+```{r}
+gc_dist * RADIUS_OF_EARTH
+```
+
+showing, rough figures, that Ted lives about 10km from EC and I live
+about 30km from EC.
 
 Calculate the sines and cosines:
 
