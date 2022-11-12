@@ -241,7 +241,8 @@ meters we have:
 gc_dist * RADIUS_OF_EARTH
 ```
 
-Compare with the `geosphere` package:
+Compare with the `geosphere` package (generally, variables calculated
+with the `geosphere` package end with `g` or `_g`).
 
 ```{r}
 RHg <- rev(RH)*180/pi
@@ -284,41 +285,53 @@ angles
 
 Observe how small two of the angles are, the second of which was Ted's
 original observation.  Verify with `geosphere::bearing()`, for the
-moment using spherical trigonometry:
+moment using spherical trigonometry; calculate `angles_g` with
+geosphere and compare:
 
-```{r}
+```{r echo=FALSE}
 angles_g <-
 c(
 bearing(LOg,ECg, f=0)-bearing(LOg,RHg, f=0),
 bearing(RHg,LOg, f=0)-bearing(RHg,ECg, f=0),
 360-(bearing(ECg,LOg, f=0)-bearing(ECg,RHg, f=0))
 ) * pi/180
+```
+
+```{r}
 rbind(angles,angles_g,angles-angles_g)
 ```
 
-
-We can interpret the smallness of the angles in
-two ways.  Firstly:
+We see that the approach used here agrees closely with that of
+`geosphere`.  We can interpret the smallness of the angles in two
+ways.  Firstly:
 
 ```{r}
-dist <- RADIUS_OF_EARTH*gcd(LO,RH)*c(angle1,angle2)
+dist <- c(
+gcd(LO,RH)*c(angle1,angle2),
+gcd(LO,EC)*c(angle1)
+) * RADIUS_OF_EARTH
 dist
 ```
 
-Above, the elements of `dist` show the distance from RH-EC (produced)
-to LO, and LO-EC (produced) to RH, in *meters*.  See how small these
-values are!  We can verify against the `geosphere` package:
+Above, the first two elements of `dist` show the distance from RH-EC
+(produced) to LO, and LO-EC (produced) to RH, in *meters*.  The third
+shows the distance from RH-LO to EC.  See how small these values are!
+We can verify against `dist_g`, the same distances calculated with
+ the `geosphere` package:
 
-```{r}
-c(
-dist2gc(LOg,RHg,ECg),
+```{r echo=FALSE}
+dist_g <- c(
+dist2gc(ECg,LOg,RHg),
 dist2gc(RHg,ECg,LOg),
-dist2gc(ECg,LOg,RHg))
+dist2gc(LOg,RHg,ECg))
 ```
 
+```{r}
+rbind(d=dist,d_g=dist_g,`d-d_g`=dist-dist_g)
+```
 
-And secondly we can calculate the excess angle:
-
+Above, we see agreement to within about 0.4mm.  Secondly, we can
+interpret by calculating the excess angle:
 
 ```{r}
 (E <- sum(angles) - pi)
@@ -381,8 +394,11 @@ Now, introduce an ellipsoidal earth.  We will use WGS-84, and assume
 that the latitude given by Google Maps is geodetic latitude.
 
 ```{r, echo=FALSE}
-lambert_distance <- function(p1,p2){
   f <- 1/298.257223563    # WGS-84
+
+
+lambert_distance <- function(p1,p2){
+
 
   s <- gcd(p1,p2)
   ## *reduced* latitude:
@@ -471,7 +487,19 @@ differs from the average radius of the earth at this point).  We can
 go on to use function `vincenty()` to solve the inverse problem.  The
 inverse problem is this: given two points, calculate the path between
 them of minimal length.  We are interested in the initial and final
-azimuth of the path.
+azimuth of the path.  We can also compare with `angles_g`, created
+with `geodesic_inverse() from the `geosphere` package.
+
+```{r,echo=FALSE}
+angles_g <- 
+c(
+  geodesic_inverse(LOg,ECg)[1,2]-geodesic_inverse(LOg,RHg)[1,2], 
+  geodesic_inverse(RHg,LOg)[1,2]-geodesic_inverse(RHg,ECg)[1,2], 
+  360-(geodesic_inverse(ECg,LOg)[1,2]-geodesic_inverse(ECg,RHg)[1,2])
+  )*pi/180
+```
+
+
 
 ```{r}
 
@@ -481,15 +509,16 @@ angles_gcd <- angles
 angles_lamb <- c(
   vincenty(LO,EC)[1]-vincenty(LO,RH)[1],
   vincenty(RH,LO)[1]-vincenty(RH,EC)[1],
-  vincenty(EC,LO)[1]-vincenty(EC,RH)[1])
+  2*pi-(vincenty(EC,LO)[1]-vincenty(EC,RH)[1]))
 names(angles_lamb) <- c("EC_LO_RH","LO_RH_EC","RH_EC_LO")
 angles_lamb
-rbind(angles_lamb,angles_gcd,diff=angles_lamb - angles_gcd)
+(jj <- rbind(angles_lamb,angles_gcd,angles_g))
+jj <- rbind(jj,sd=apply(jj,2,sd))
+jj
 ```
 
 We see that the angles under an ellipsoidal earth are slightly bigger
-than under the spherical earth.
-
+than under the spherical earth, but all three are in close agreement.
 
 
 # Statistical analysis
