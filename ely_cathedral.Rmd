@@ -524,15 +524,21 @@ than under the spherical earth, but all three are in close agreement.
 
 It would be nice to use the methods of inferential statistics to
 furnish some insight into this collinear coincidence.  However, I have
-not succeeded to date.  There does not seem to be a clear null
-hypothesis to test [and if there were, what would rejection of it
-mean?]; there is no credible alternative hypothesis; no family of
-distributions to consider; no statistical ensemble; and no likelihood
-approach seems to be appropriate.
+not succeeded to date.  Although there is one reasonable null
+hypothesis to test, it is not clear what one could infer from its
+rejection.  But, more seriously, there is no credible alternative
+hypothesis; there is no family of distributions to consider; and no
+likelihood approach seems to be appropriate.
 
-And as Ted says, there is certainly an element of selection bias in
-there.  Presumably we could condition on the fact that our houses were
-roughly aligned alongside Ely Cathedral.  But how rough is rough?
+And as Ted says, there is certainly an element of selection bias to
+consider.  One option would be to condition on the fact that our
+houses were roughly aligned alongside Ely Cathedral.  But quantifying
+"rough alignment" is not straightforward.  My thinking now is that
+"the observation" is actually two non-independent pieces of
+information: firstly, Ted's geographical insight about rough
+alignment; and secondly the more sophisticated quantitative
+mathematical analysis.  With this, a null of "`RH` is at a random
+position" is, I would say, reasonable.
 
 Although the calculations consider EC, LO, and RH on equal footing, we
 prefer to consider, with Ted, that EC is the origin.  This is arguably
@@ -576,8 +582,13 @@ selection that Ted might have carried out.  A reasonable value for a
 $p$-value would be to calculate the probability that a randomly chosen
 point `P` on the earth has angle `EC-P-LO` smaller than `EC-RH-LO`
 (which would result in `RH-P` passing closer to `LO` than `RH-EC`
-does):
+does).  Using `geosphere`, first with `f=0` for a spherical earth and
+then usign the default value from WGS-84:
 
 ```{r}
-(bearing(RHg,LOg, f=0)-bearing(RHg,ECg, f=0))/180  # need to convert to radians
+c(bearing(RHg,LOg,f=0)-bearing(RHg,ECg,f=0),
+bearing(RHg,LOg)-bearing(RHg,ECg))/180
 ```
+
+Both give a $p$-value of about $1.2\times 10^{-4}$, strong grounds to
+reject our null.  But what inference can we draw from this?
