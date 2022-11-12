@@ -500,7 +500,6 @@ c(
 ```
 
 
-
 ```{r}
 
 vincenty(RH,LO)[1]
@@ -570,10 +569,15 @@ coincidence under investigation.
 However, it does not seem unreasonable to ask how close an alignment
 we could reasonably expect, on the basis of some process which
 includes an element of randomness.  We might also wish to quantify the
-unlikeliness of the observed close alignment.
+unlikeliness of the observed close alignment.  To do this, we fix EC
+and LO, and consider a randomly chosen point P.  Observe that this
+approach contains zero selection bias: we are not considering any
+selection that Ted might have carried out.  A reasonable value for a
+$p$-value would be to calculate the probability that a randomly chosen
+point `P` on the earth has angle `EC-P-LO` smaller than `EC-RH-LO`
+(which would result in `RH-P` passing closer to `LO` than `RH-EC`
+does):
 
-To do this, we fix EC and LO, and consider a randomly chosen point P.
-We then see if P-EC-EO passes closer to LO than
-
-Observe that this approach contains zero selection bias: we are
-not considering any selection that Ted might have carried out.
+```{r}
+(bearing(RHg,LOg, f=0)-bearing(RHg,ECg, f=0))/180  # need to convert to radians
+```
