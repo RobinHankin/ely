@@ -210,8 +210,6 @@ $$ 2r\arcsin\left(\sqrt{\sin^2\left(\frac{\varphi_2 -
 With the observed values, the two terms under the square root in the
 Haversine formula are both ${\sim}10^{-6}$.
 
-
-
 Convert to radians:
 
 ```{r}
@@ -243,10 +241,23 @@ meters we have:
 gc_dist * RADIUS_OF_EARTH
 ```
 
-showing, rough figures, that Ted lives about 10km from EC and I live
-about 30km from EC.
+Compare with the `geosphere` package:
 
-Calculate the sines and cosines:
+```{r}
+RHg <- rev(RH)*180/pi
+LOg <- rev(LO)*180/pi
+ECg <- rev(EC)*180/pi
+library("geosphere")
+gc_distg <- c(
+EC_LOg = distCosine(ECg,LOg),
+LO_RHg = distCosine(LOg,RHg),
+RH_ECg = distCosine(RHg,ECg))
+rbind(gc_dist*RADIUS_OF_EARTH,gc_distg,gc_dist*RADIUS_OF_EARTH-gc_distg)
+```
+
+Above we see two things: firstly, that Ted lives about 10km from EC
+and I live about 30km from EC; and secondly, that the calculations are
+in approximate agreement.  Now calculate the sines and cosines:
 
 ```{r}
 sin_a <- sin(EC_LO)
@@ -281,7 +292,17 @@ dist
 
 Above, the elements of `dist` show the distance from RH-EC (produced)
 to LO, and LO-EC (produced) to RH, in *meters*.  See how small these
-values are!  And secondly we can calculate the excess angle:
+values are!  We can verify against the `geosphere` package:
+
+```{r}
+c(
+dist2gc(LOg,RHg,ECg),
+dist2gc(RHg,ECg,LOg),
+dist2gc(ECg,LOg,RHg))
+```
+
+
+And secondly we can calculate the excess angle:
 
 
 ```{r}
