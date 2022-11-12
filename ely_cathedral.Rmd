@@ -257,7 +257,8 @@ rbind(gc_dist*RADIUS_OF_EARTH,gc_distg,gc_dist*RADIUS_OF_EARTH-gc_distg)
 
 Above we see two things: firstly, that Ted lives about 10km from EC
 and I live about 30km from EC; and secondly, that the calculations are
-in approximate agreement.  Now calculate the sines and cosines:
+in approximate agreement, differing by $2\times 10^{-7}\,{\mathrm m}$,
+or about $0.2\,\mu{\mathrm m}$.  Now calculate the sines and cosines:
 
 ```{r}
 sin_a <- sin(EC_LO)
@@ -282,7 +283,21 @@ angles
 ```
 
 Observe how small two of the angles are, the second of which was Ted's
-original observation.  We can interpret the smallness of the angles in
+original observation.  Verify with `geosphere::bearing()`, for the
+moment using spherical trigonometry:
+
+```{r}
+angles_g <-
+c(
+bearing(LOg,ECg, f=0)-bearing(LOg,RHg, f=0),
+bearing(RHg,LOg, f=0)-bearing(RHg,ECg, f=0),
+360-(bearing(ECg,LOg, f=0)-bearing(ECg,RHg, f=0))
+) * pi/180
+rbind(angles,angles_g,angles-angles_g)
+```
+
+
+We can interpret the smallness of the angles in
 two ways.  Firstly:
 
 ```{r}
