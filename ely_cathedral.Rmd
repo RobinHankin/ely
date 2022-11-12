@@ -498,7 +498,8 @@ we could reasonably expect, on the basis of some process which
 includes an element of randomness.  We might also wish to quantify the
 unlikeliness of the observed close alignment.
 
-To do this, we fix EC and LO, and consider a point that is randomly
-chosen from locations where a collaborator might reasonably live.
+To do this, we fix EC and LO, and consider a randomly chosen point P.
+We then see if P-EC-EO passes closer to LO than
+
 Observe that this approach contains zero selection bias: we are
 not considering any selection that Ted might have carried out.
