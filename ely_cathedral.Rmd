@@ -142,8 +142,15 @@ three locations:
 knitr::include_graphics("googlemap.png")
 ```
 
+```{r fig.cap="Diagrammatic representation of Ely Cathedral (EC), Little Ouse (LO), and Robin Hankin (RH); triangle fattened for clarity",out.width="50%"}
+knitr::include_graphics("EC_LO_RH.png")
+```
+
 Above we see the three points, together with lines joining them,
-forming almost a perfect straight line.  Now the latitude and
+forming almost a perfect straight line.
+
+
+Now the latitude and
 longitude of three positions: my house (`RH`), Ely Cathedral (`EC`)
 and Ted's house (`LO`, Little Ouse):
 
@@ -253,11 +260,11 @@ gc_distg <- c(
 EC_LOg = distCosine(ECg,LOg),
 LO_RHg = distCosine(LOg,RHg),
 RH_ECg = distCosine(RHg,ECg))
-rbind(gc_dist*RADIUS_OF_EARTH,gc_distg,gc_dist*RADIUS_OF_EARTH-gc_distg)
+rbind(gc_dist=gc_dist*RADIUS_OF_EARTH,gc_distg,diff=gc_dist*RADIUS_OF_EARTH-gc_distg)
 ```
 
-Above we see two things: firstly, that Ted lives about 10km from EC
-and I live about 30km from EC; and secondly, that the calculations are
+Above we see two things: firstly, that Ted lives about 11km from EC
+and I live about 29km from EC; and secondly, that the calculations are
 in approximate agreement, differing by $2\times 10^{-7}\,{\mathrm m}$,
 or about $0.2\,\mu{\mathrm m}$.  Now calculate the sines and cosines:
 
@@ -298,11 +305,11 @@ bearing(RHg,LOg, f=0)-bearing(RHg,ECg, f=0),
 ```
 
 ```{r}
-rbind(angles,angles_g,angles-angles_g)
+rbind(angles,angles_g,diff=angles-angles_g)
 ```
 
 We see that the approach used here agrees closely with that of
-`geosphere`.  We can interpret the smallness of the angles in two
+`geosphere`.  We can interpret the smallness of two acute angles `EC_LO_RH` and `LO_RH_EC` in two
 ways.  Firstly:
 
 ```{r}
