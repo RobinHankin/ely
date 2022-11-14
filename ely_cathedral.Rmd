@@ -142,15 +142,12 @@ three locations:
 knitr::include_graphics("googlemap.png")
 ```
 
-```{r fig.cap="Diagrammatic representation of Ely Cathedral (EC), Little Ouse (LO), and Robin Hankin (RH); triangle fattened for clarity",out.width="50%"}
+```{r fig.cap="Diagrammatic representation of Ely Cathedral (EC), Little Ouse (LO), and Robin Hankin (RH); triangle fattened for clarity.  Distances on a spherical earth",out.width="50%"}
 knitr::include_graphics("EC_LO_RH.png")
 ```
 
 Above we see the three points, together with lines joining them,
-forming almost a perfect straight line.
-
-
-Now the latitude and
+forming almost a perfect straight line.  Now the latitude and
 longitude of three positions: my house (`RH`), Ely Cathedral (`EC`)
 and Ted's house (`LO`, Little Ouse):
 
@@ -190,13 +187,80 @@ text(0,0,"EC",pos=4)
 
 Above we see that the line from RH to LO passes within 100m or so of EC.
 
+
+## Tangent plane at Ely Cathedral
+
+We will calculate Cartesian coordinates for LO and RH on the tangent
+plane to Earth at Ely Cathedral, using `_t` to distinguish this
+analysis from subsequent spherical or spheroidal values.  First, we
+will convert the lat/long values to radians:
+
+```{r}
+RH <- RH*pi/180  # Convert to radians
+EC <- EC*pi/180
+LO <- LO*pi/180
+```
+
+Then, calculate the positions on the tangent plane:
+
+```{r}
+EC_t <- c(x=0,y=0) # by definition
+LO_t <- RADIUS_OF_EARTH*c(x = (LO[2]-EC[2])* cos(EC[1]), y = (LO[1]-EC[1]))
+RH_t <- RADIUS_OF_EARTH*c(x = (RH[2]-EC[2])* cos(EC[1]), y = (RH[1]-EC[1]))
+(dist_t <- c(sqrt(sum(LO_t^2)),sqrt(sum(RH_t^2)),sqrt(sum((RH_t-LO_t)^2))))
+```
+
+
+The angles are given by the cosine rule:
+
+
+```{r}
+f <- function(d){acos((d[1]^2+d[2]^2-d[3]^2)/(2*d[1]*d[2]))} # the cosine rule in R
+c(f(dist_t[c(1,2,3)]),f(dist_t[c(3,1,2)]),f(dist_t[c(2,3,1)]))
+```
+
+showing two very acute angles in close agreement with Ted's analysis.
+How close does the line `RH-EC` pass to LO?  The closest approach
+along the line `EC-RH` produced will be given by
+$\left(\frac{{\mathbf x}\cdot{\mathbf y}}{{\mathbf x}\cdot{\mathbf
+x}}\right){\mathbf x}$ where we write ${\mathbf x}$ for the vector
+`RH` to `EC` and ${\mathbf y}$ for `EC` to `LO`.
+
+```{r}
+(CA_t <- sum(LO_t * RH_t)/sum(RH_t * RH_t)*RH_t)
+CA_t-LO_t # values in meters
+(closest_dist <- sqrt(sum((CA_t-LO_t)^2))) # distance of closest approach
+```
+
+We can reproduce Ted's analysis by calculating the due north distance
+from `LO` to the `RH-EC` line:
+
+```{r}
+closest_dist/sin(atan(RH_t[2]/RH_t[1])) * 1.0936
+```
+
+(above, we mutliply by 1.0936 to convert to yards) showing reasonably
+close agreement with Ted's value of about a hundred yards.
+
+
 # Spherical geometry
 
 As Ted observes, spherical geometry represents a significant
-improvement.  Below I reproduce the spherical analysis (in a modified
-and more maintainable form), and at the end I follow up Ted's
-suggestion of allowing for oblateness.  First we use the Haversine
-function to calculate great circle distances, `gcd()`:
+improvement.  If $x$ is the distance from his house to my house, and
+$R$ the radius of the earth, then the correction will be ${\mathcal
+O}(x^2/R)$:
+
+```{r}
+x <- dist_t[3]
+x^2/(2*RADIUS_OF_EARTH)
+```
+
+suggesting that spherical trig might be worthwhile, as the correction
+is comparable to the discrepancy of about 100m observed by Ted.  Below
+I reproduce the spherical analysis (in a modified and more
+maintainable form), and at the end I follow up Ted's suggestion of
+allowing for oblateness.  First we use the Haversine function to
+calculate great circle distances, `gcd()`:
 
 ```{r definegcd}
 gcd <- function(pos1,pos2){  # great circle distance
@@ -216,14 +280,6 @@ $$ 2r\arcsin\left(\sqrt{\sin^2\left(\frac{\varphi_2 -
 
 With the observed values, the two terms under the square root in the
 Haversine formula are both ${\sim}10^{-6}$.
-
-Convert to radians:
-
-```{r}
-RH <- RH*pi/180  # Convert to radians
-EC <- EC*pi/180
-LO <- LO*pi/180
-```
 
 Distances between the three places, in radians:
 
@@ -495,7 +551,7 @@ go on to use function `vincenty()` to solve the inverse problem.  The
 inverse problem is this: given two points, calculate the path between
 them of minimal length.  We are interested in the initial and final
 azimuth of the path.  We can also compare with `angles_g`, created
-with `geodesic_inverse() from the `geosphere` package.
+with `geodesic_inverse()` from the `geosphere` package.
 
 ```{r,echo=FALSE}
 angles_g <- 
@@ -590,7 +646,7 @@ $p$-value would be to calculate the probability that a randomly chosen
 point `P` on the earth has angle `EC-P-LO` smaller than `EC-RH-LO`
 (which would result in `RH-P` passing closer to `LO` than `RH-EC`
 does).  Using `geosphere`, first with `f=0` for a spherical earth and
-then usign the default value from WGS-84:
+then using the default value from WGS-84:
 
 ```{r}
 c(bearing(RHg,LOg,f=0)-bearing(RHg,ECg,f=0),
