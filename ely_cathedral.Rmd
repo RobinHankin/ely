@@ -351,7 +351,7 @@ original observation.  Verify with `geosphere::bearing()`, for the
 moment using spherical trigonometry; calculate `angles_g` with
 geosphere and compare:
 
-```{r echo=FALSE}
+```{r echo=TRUE}
 angles_g <-
 c(
 bearing(LOg,ECg, f=0)-bearing(LOg,RHg, f=0),
@@ -365,8 +365,9 @@ rbind(angles,angles_g,diff=angles-angles_g)
 ```
 
 We see that the approach used here agrees closely with that of
-`geosphere`.  We can interpret the smallness of two acute angles `EC_LO_RH` and `LO_RH_EC` in two
-ways.  Firstly:
+`geosphere`, the angles differing by about 5 microradians.  The acute
+angles differ by about 1\%.  We can interpret the smallness of angles
+`EC_LO_RH` and `LO_RH_EC` in two ways.  Firstly:
 
 ```{r}
 dist <- c(
@@ -380,25 +381,23 @@ Above, the first two elements of `dist` show the distance from RH-EC
 (produced) to LO, and LO-EC (produced) to RH, in *meters*.  The third
 shows the distance from RH-LO to EC.  See how small these values are!
 We can verify against `dist_g`, the same distances calculated with
- the `geosphere` package:
+`dist2gc()` of the `geosphere` package:
 
-```{r echo=FALSE}
-dist_g <- c(
-dist2gc(ECg,LOg,RHg),
-dist2gc(RHg,ECg,LOg),
-dist2gc(LOg,RHg,ECg))
+```{r echo=TRUE}
+dist_g <- c(dist2gc(ECg,LOg,RHg),dist2gc(RHg,ECg,LOg),dist2gc(LOg,RHg,ECg))
 ```
+
+We can compare these distances directly:
 
 ```{r}
-rbind(d=dist,d_g=dist_g,`d-d_g`=dist-dist_g)
+(distcomp <- rbind(d=dist,d_g=dist_g,`d-d_g`=dist-dist_g))
 ```
 
-Above, we see agreement to within about 0.4mm.  Secondly, we can
-interpret by calculating the excess angle:
+Above, we see agreement to within a few cm, or about $0.5\%$.
+Secondly, we can interpret by calculating the excess angle:
 
 ```{r}
 (E <- sum(angles) - pi)
-(area <- E*RADIUS_OF_EARTH^2)
 ```
 
 Something is very wrong here as the excess angle is negative.  This
@@ -406,7 +405,7 @@ is, I think, due to rounding error.  Running the same formulae through
 mathematica [file `ely.mma`] gives:
 
 ```
-In[127]:= N[angle1+angle2+angle3-Pi]                                                                                                                                                                           
+In[127]:= N[angle1+angle2+angle3-Pi] 
 
                      -9
 Out[127]= -5.66402 10
@@ -417,16 +416,15 @@ much the same result.  However, we can force Mathematica to use more
 digits in its evaluation:
 
 ```
-In[128]:= N[angle1+angle2+angle3-Pi,digits=20]                                                                                                                                                                 
+In[128]:= N[angle1+angle2+angle3-Pi,digits=20] 
 
                                   -9
 Out[128]= 5.5405140041818607405 10
 ```
 
-which give a positive answer (which turns out to be reasonably
+which gives a positive answer (which turns out to be reasonably
 robust).  I do not know why the results are so similar in magnitude.
 However, we can use this value to calculate the area of the triangle:
-
 
 ```{r}
 (area <- 5.540514e-9*RADIUS_OF_EARTH^2)
@@ -442,19 +440,27 @@ Using the approximation of plane triangle in which area is half base
 times height, we might ask how close line RH-LO passes EC:
 
 ```{r}
-2*area/(gcd(LO,RH)*RADIUS_OF_EARTH)
+(dist_area_calc <- 2*area/(gcd(LO,RH)*RADIUS_OF_EARTH))
 ```
 
-that is, about eleven meters.
+that is, about eleven meters.  We can compare this value with that
+calculated in `distcomp` above:
 
+```{r}
+distcomp[1:2,3]- dist_area_calc
+```
+
+showing very close agreement; it is interesting to see that the
+agreement is very much closer to that obtained here than that obtained
+with `geosphere`.
 
 # Ellipsoidal earth
 
 
-
-
 Now, introduce an ellipsoidal earth.  We will use WGS-84, and assume
-that the latitude given by Google Maps is geodetic latitude.
+that the latitude given by Google Maps is geodetic latitude.  Most of
+the calculations are set to `echo=FALSE` as the technical details are
+rather prolix.
 
 ```{r, echo=FALSE}
   f <- 1/298.257223563    # WGS-84
@@ -538,19 +544,20 @@ ellipsoidal earth.  The distances are very similar to those
 calculated on the great circle:
 
 ```{r}
-gc_dist
-lamb - gc_dist
-(lamb - gc_dist)/gc_dist
+rbind(lamb, gc_dist)
 (lamb - gc_dist) * RADIUS_OF_EARTH
 ```
 
-So the ellipsoidal distances are less than the spherical distances by
-about 10-30 meters (although most of this is because the local radius
-differs from the average radius of the earth at this point).  We can
-go on to use function `vincenty()` to solve the inverse problem.  The
-inverse problem is this: given two points, calculate the path between
-them of minimal length.  We are interested in the initial and final
-azimuth of the path.  We can also compare with `angles_g`, created
+So the ellipsoidal distances between the locations are less than the
+spherical distances by about 10-30 meters---very small compared with
+40km great circle distances (although most of the difference is due to
+the local radius differing from the mean radius of the earth at this
+point).  We can go on to use function `vincenty()` to solve the
+inverse problem which will give estimates for the acute angles in the
+`EC-LO-RH` triangle.  The "inverse problem" is a standard geodetic
+calculation: given two points, calculate the path between them of
+minimal length.  We are interested in the initial and final azimuth of
+the path.  We can also compare the results with `angles_g`, created
 with `geodesic_inverse()` from the `geosphere` package.
 
 ```{r,echo=FALSE}
@@ -564,19 +571,21 @@ c(
 
 
 ```{r}
-
-vincenty(RH,LO)[1]
-vincenty(RH,EC)[1]
-angles_gcd <- angles
-angles_lamb <- c(
+c(vincenty(RH,LO)[1],vincenty(RH,EC)[1]) # azimuths of paths RH-LO and RH-EC
+angles_gcd <- angles  # angles of EC-LO-RH on spherical earth
+angles_lamb <- c(     # angles of EC-LO-RH on ellipsoidal earth
   vincenty(LO,EC)[1]-vincenty(LO,RH)[1],
   vincenty(RH,LO)[1]-vincenty(RH,EC)[1],
   2*pi-(vincenty(EC,LO)[1]-vincenty(EC,RH)[1]))
 names(angles_lamb) <- c("EC_LO_RH","LO_RH_EC","RH_EC_LO")
 angles_lamb
-(jj <- rbind(angles_lamb,angles_gcd,angles_g))
-jj <- rbind(jj,sd=apply(jj,2,sd))
-jj
+```
+
+We can now compare `angles_lamb` and `angles_g` (ellipsoidal; my
+figures and `geosphere` respectively) with `angles_gcd` (spherical):
+
+```{r}
+rbind(angles_lamb,angles_g,angles_gcd)
 ```
 
 We see that the angles under an ellipsoidal earth are slightly bigger
@@ -585,58 +594,44 @@ than under the spherical earth, but all three are in close agreement.
 
 # Statistical analysis
 
-It would be nice to use the methods of inferential statistics to
-furnish some insight into this collinear coincidence.  However, I have
-not succeeded to date.  Although there is one reasonable null
-hypothesis to test, it is not clear what one could infer from its
-rejection.  But, more seriously, there is no credible alternative
-hypothesis; there is no family of distributions to consider; and no
-likelihood approach seems to be appropriate.
-
-And as Ted says, there is certainly an element of selection bias to
+As Ted says, there is certainly an element of selection bias to
 consider.  One option would be to condition on the fact that our
-houses were roughly aligned alongside Ely Cathedral.  But quantifying
-"rough alignment" is not straightforward.  My thinking now is that
-"the observation" is actually two non-independent pieces of
-information: firstly, Ted's geographical insight about rough
-alignment; and secondly the more sophisticated quantitative
-mathematical analysis.  With this, a null of "`RH` is at a random
-position" is, I would say, reasonable.
+houses were roughly aligned alongside Ely Cathedral, as this was Ted's
+initial observation.  But quantifying "rough alignment" is not
+straightforward.  My thinking now is that "the observation" is
+actually two non-independent pieces of information: firstly, Ted's
+geographical insight about rough alignment; and secondly the more
+sophisticated quantitative mathematical analysis.  We can treat these
+pieces as a single joint observation, under which a null of "`RH` is
+at a random position" is, I would say, reasonable.
 
-Although the calculations consider EC, LO, and RH on equal footing, we
-prefer to consider, with Ted, that EC is the origin.  This is arguably
-preferable to working in an affine space.  Further, Ted---perfectly
-reasonably---considers _both_ EC and LO to be fixed: my house being
-notionally movable or randomly positioned, in some sense.
+Although the calculations consider EC, LO, and RH on equal footing, it
+is better to consider, with Ted, that EC is the origin.  This is
+arguably preferable to working in an affine space.  Further,
+Ted---perfectly reasonably---considers _both_ EC and LO to be fixed:
+my house being notionally movable or randomly positioned, in some
+sense.
 
 One criterion often used for coincidences is to consider possible
-occurrences that are as surprising as the observation.  Typical
-examples would be coin-tossing, in which HHHHHH is held to be just as
-surprising as TTTTTT.  In the LO-EC-RH case, what observations might
-count as equally surprising as the one Ted saw?  In reality we see
-LO-EC-RH but surely LO-RH-EC [that is, RH in between LO and EC] or
-RH-LO-EC [LO between RH and EC] would be just as surprising.  Or
-perhaps if the EC-RH distance was exactly the same as the EC-LO
-distance.  Or perhaps EC-RH being perpendicular to EC-LO.  Or even RH
-being due North (or South, or East, or West?) of EC.  But none of
-these are as striking as collinearity of LO-EC-RH.
+occurrences that are as surprising as the actual observation.  Typical
+examples would be analysing a coin for bias, in which THHHHH is held
+to be just as surprising as HHHHTH.  In the LO-EC-RH case, what
+observations might count as being equally surprising to the one Ted
+saw?  In reality we see LO-EC-RH collinear, but surely LO-RH-EC [that
+is, RH in between LO and EC] or RH-LO-EC [LO between RH and EC] would
+be just as surprising.  Or perhaps if the EC-RH distance was exactly
+the same as the EC-LO distance.  Or perhaps EC-RH being perpendicular
+to EC-LO.  Or even RH being due North (or South, or East, or West?) of
+EC.  But none of these are as striking as collinearity of LO-EC-RH.
 
-Going the other way, what _more_ impressive coincidences might we
-consider?  The only sensible one is the double coincidence of both
-collinearity of LO-RC-RH _and_ equality of the LO-EC and EC-RH
-distances (arguably, simultaneous equidistance and perpendicularity
-might technically count, but this is lame at best).
+Further, what _more_ impressive coincidences might we consider?  The
+only sensible one is the double coincidence of both collinearity of
+LO-RC-RH _and_ equality of the LO-EC and EC-RH distances (arguably,
+simultaneous equidistance and perpendicularity might technically
+count, but this is lame at best).
 
-But it is not clear to what extent the selection bias should be
-incorporated in any null, or evaluation of any coincidence.  It is not
-clear whether we want to analyse the coincidence purely
-post-selection, or if our analysis should include an element of the
-selection process.  Besides, the selection process itself is poorly
-defined but whatever it is, surely it is at least part of the
-coincidence under investigation.
-
-However, it does not seem unreasonable to ask how close an alignment
-we could reasonably expect, on the basis of some process which
+It does not seem unreasonable to ask how close an alignment we could
+expect, the observation being a realization of some process which
 includes an element of randomness.  We might also wish to quantify the
 unlikeliness of the observed close alignment.  To do this, we fix EC
 and LO, and consider a randomly chosen point P.  Observe that this
