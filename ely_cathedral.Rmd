@@ -654,4 +654,32 @@ bearing(RHg,LOg)-bearing(RHg,ECg))/180
 ```
 
 Both give a $p$-value of about $1.2\times 10^{-4}$, strong grounds to
-reject our null.  But what inference can we draw from this?
+reject our null.  But what inference can we draw from this?  One
+probability model might be as follows.  Consider $n$ randomly chosen
+points on the sphere and our observation comprises the smallest
+(absolute) bearing $x$ from `LO-EC`.  The likelihood function for $n$,
+that is, $\operatorname{Prob}\left(x\left|n\right.\right)$ would be
+$\propto n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the
+$p$-value above.  The maximum likelihood estimate for $n$ would be
+$-\log(1-x)^{-1}\simeq 8334$ and we can plot a support curve:
+
+```{r}
+n <- 1:100000
+x <- (bearing(RHg,LOg)-bearing(RHg,ECg))/180
+S <- function(n){log(n) + (n-1)*log(1-x)}
+supp <- S(n)
+
+plot(n,supp-max(supp),xlab="n",log="x",ylab="support",type="l",lwd=3)
+abline(h=c(0,-2))
+```
+
+We can even create a credible interval based on two units of support:
+
+```{r}
+nmax <- -1/log(1-x)
+f <- function(n){S(n)-S(nmax)+2}
+c(uniroot(f,c(1,9000))$root,uniroot(f,c(8000,1e5))$root)
+```
+
+We can be reasonably confident that Ted considered more than 437
+students but fewer than 37549 students.
