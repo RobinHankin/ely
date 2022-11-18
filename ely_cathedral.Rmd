@@ -656,7 +656,8 @@ points on the sphere and our observation comprises the smallest
 that is, $\operatorname{Prob}\left(x\left|n\right.\right)$ would be
 $\propto n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the
 $p$-value above.  The maximum likelihood estimate for $n$ would be
-$n_\mathrm{max}=-\log(1-x)^{-1}\simeq 8334$ and we can plot a support curve:
+$n_\mathrm{max}=-\log(1-x)^{-1}\simeq 8334$ and we can plot a support
+curve:
 
 ```{r}
 n <- 1:100000
@@ -677,3 +678,27 @@ c(uniroot(f,c(1,9000))$root,uniroot(f,c(8000,1e5))$root)
 
 We can be reasonably confident that Ted considered more than 437
 students but fewer than 37549 students.
+
+One might construct a different alternative as follows.  We consider
+hypothesis $H_\theta$, that is, Ted chooses students randomly with
+angular separation $\leq\theta$.  That is, he (somehow) identifies a
+value of $\theta$, and subsequently chooses a student with angular
+separation $\leq\theta$.  A likelihood function for $H_\theta$ might
+be
+
+$$
+{\mathcal L}\left(H_\theta\right)=\operatorname{Prob}\left(x\left|H_\theta\right.\right)=
+\left\{\begin{array}{rr}
+\frac{1}{\theta}    & \theta\geqslant x\\
+0    & \theta < x
+\end{array}\right.$$
+
+(where $x\simeq 1.2\times 10^{-4}$ is the $p$-value above).  With
+this, the maximum likelihood estimate for $\theta$ will be $x$;
+choosing a student from anywhere on the planet corresponds to $H_\pi$.
+likelihood ratio $\frac{{\mathcal L}\left(H_x\right)}{{\mathcal
+L}\left(H_\pi\right)}$ will simply be $x^{-1}$.
+
+The two approaches give similar likelihood ratios for small $x$, for
+$-\log(1-x)^{-1}=\frac{1}{x} + \frac{1}{2} + {\mathcal O}(x)$.
+
