@@ -636,26 +636,44 @@ includes an element of randomness.  We might also wish to quantify the
 unlikeliness of the observed close alignment.  To do this, we fix EC
 and LO, and consider a randomly chosen point P.  Observe that this
 approach contains zero selection bias: we are not considering any
-selection that Ted might have carried out.  A reasonable value for a
-$p$-value would be to calculate the probability that a randomly chosen
-point `P` on the earth has angle `EC-P-LO` smaller than `EC-RH-LO`
-(which would result in `RH-P` passing closer to `LO` than `RH-EC`
-does).  Using `geosphere`, first with `f=0` for a spherical earth and
-then using the default value from WGS-84:
+selection that Ted might have carried out.
+
+There seem to be three different alternative hypotheses one might
+entertain:
+
+* closest among $n$
+* restricted to $\delta\theta$
+* beta distribution
+
+I will analyse each in turn.
+
+NB: angles are scaled so that the distribution is the interval $[0,1]$
+and _not_ $[0,\pi]$ or $[0,2\pi)$.
+
+### Closest among $n$
+
+A reasonable value for a $p$-value would be to calculate the
+probability that a randomly chosen point `P` on the earth has angle
+`EC-P-LO` smaller than `EC-RH-LO` (which would result in `RH-P`
+passing closer to `LO` than `RH-EC` does).  Using `geosphere`, first
+with `f=0` for a spherical earth and then using the default value from
+WGS-84:
 
 ```{r}
 c(bearing(RHg,LOg,f=0)-bearing(RHg,ECg,f=0),
 bearing(RHg,LOg)-bearing(RHg,ECg))/180
 ```
 
-Both give a $p$-value of about $1.2\times 10^{-4}$, strong grounds to
-reject our null.  But what inference can we draw from this?  One
-probability model might be as follows.  Consider $n$ randomly chosen
-points on the sphere and our observation comprises the smallest
-(absolute) bearing $x$ from `LO-EC`.  The likelihood function for $n$,
-that is, $\operatorname{Prob}\left(x\left|n\right.\right)$ would be
-$\propto n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the
-$p$-value above.  The maximum likelihood estimate for $n$ would be
+(dividing by $180$ to give a $[0,1]$ range).  Both give a $p$-value of
+about $1.2\times 10^{-4}$, strong grounds to reject our null.  We will
+use $x=1.2\times 10^{-4}$ exactly from now on.  But what inference can
+we draw from this?  One probability model might be as follows.
+Consider $n$ randomly chosen points on the sphere and our observation
+comprises the smallest (absolute) bearing $x$ from `LO-EC`.  The
+likelihood function for $n$, that is,
+$\operatorname{Prob}\left(x\left|n\right.\right)$ would be $\propto
+n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the $p$-value
+above.  The maximum likelihood estimate for $n$ would be
 $n_\mathrm{max}=-\log(1-x)^{-1}\simeq 8334$ and we can plot a support
 curve:
 
@@ -667,6 +685,7 @@ nmax <- -1/log(1-x)
 plot(n,S(n) - S(nmax),xlab="n",log="x",ylab="support",type="l",lwd=3)
 abline(v=nmax,lty=2)
 abline(h=c(0,-2))
+abline(v=1,col='red')
 ```
 
 We can even create a credible interval based on two units of support:
@@ -678,6 +697,8 @@ c(uniroot(f,c(1,9000))$root,uniroot(f,c(8000,1e5))$root)
 
 We can be reasonably confident that Ted considered more than 437
 students but fewer than 37549 students.
+
+## restricted to small angles
 
 One might construct a different alternative as follows.  We consider
 hypothesis $H_\theta$, that is, Ted chooses students randomly with
@@ -699,6 +720,43 @@ choosing a student from anywhere on the planet corresponds to $H_\pi$.
 likelihood ratio $\frac{{\mathcal L}\left(H_x\right)}{{\mathcal
 L}\left(H_\pi\right)}$ will simply be $x^{-1}$.
 
-The two approaches give similar likelihood ratios for small $x$, for
+```{r}
+x <- 1.2e-4
+o <- sort(c(x,seq(from=3e-5,to=1,len=1000)))
+S <- -log(o)  # log-likelihood
+S[o<x] <- -Inf
+plot(o,S+log(x),type="l",lwd=3,log="x")
+abline(h=c(0,-2))
+abline(v=1,col='red')
+```
+
+
+### Beta distribution
+
+
+The Beta distribution $B(\alpha,\beta)$ but with $\beta=1$ gives us
+
+$$\operatorname{Prob}(\theta) = \alpha\theta^{\alpha-1},\qquad\theta\in [0,1]$$
+
+Then our null would be $\alpha=1$ (uniform).  The likelihood function
+for $\alpha$ is then ${\mathcal L}(\alpha)=\alpha x^{\alpha-1}$ which
+gives us $\hat{\alpha}=-1/\log x\simeq 0.11$.  The likelihood ratio
+against the null would be
+$\hat{\alpha}x^{\hat{\alpha}-1}=-\left[\log(x)\cdot
+x^{1+1/\log(x)}\right]^{-1}$.
+
+```{r}
+alpha <- seq(from=2e-3,to=1.1,len=300)
+x <- 1.2e-4
+supp <- function(alpha){log(alpha) + (alpha-1)*log(x)}
+amax <- -1/log(x)
+plot(alpha,supp(alpha)-supp(amax),log="",type="l",lwd=3)
+abline(h=c(0,-2))
+abline(v=amax,lty=2)
+```
+
+
+
+The first two approaches give similar likelihood ratios for small $x$, for
 $-\log(1-x)^{-1}=\frac{1}{x} + \frac{1}{2} + {\mathcal O}(x)$.
 
