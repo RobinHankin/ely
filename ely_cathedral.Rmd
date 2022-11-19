@@ -676,8 +676,8 @@ n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the $p$-value
 above.  The maximum likelihood estimate for $n$ would be
 $n_\mathrm{max}=-\log(1-x)^{-1}\simeq 8334$.  The likelihood ratio
 (against a null of $n=1$) would be
-$\frac{(1-x)^{1/\log(1-x)-1}}{\log(1-x)}$.  We can plot a support
-curve:
+$\frac{(1-x)^{1/\log(1-x)-1}}{\log(1-x)}=\frac{-1}{e(1-x)\log(1-x)}$.
+We can plot a support curve:
 
 ```{r}
 n <- 1:100000
@@ -732,9 +732,7 @@ abline(h=c(0,-2))
 abline(v=1,col='red')
 ```
 
-
 ### Beta distribution
-
 
 The Beta distribution $B(\alpha,\beta)$ but with $\beta=1$ gives us
 
