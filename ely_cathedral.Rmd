@@ -765,18 +765,19 @@ abline(v=1,col='red')
 For an observed angle of $x\in[0,1]$, where $x$ is understood to be
 "small", we have three likelihood ratios:
 
-* $-(1-x)^{-1/\log(1-x)-1}/\log(1-x)$ (closest among $n$)
+* $-(1-x)^{-1/\log(1-x)-1}/\log(1-x) = \frac{-1}{e(1-x)\log(1-x)}$ (closest among $n$)
 * $x^{-1}$  (restricted choice)
-* $-\left[\log(x)\cdot x^{1+1/\log(x)}\right]^{-1}$.  (beta distribution)
+* $-\left[\log(x)\cdot x^{1+1/\log(x)}\right]^{-1}=\frac{-1}{ex\log(x)}$.  (beta distribution)
 
 We can plot Support functions for observed values $x$ as follows:
 
-
 ```{r}
 x <- seq(from=5e-5,to=0.1,len=300)
-plot(x,log(-(1-x)^(-1/log(1-x)-1)/log(1-x)),log="x",type="l",ylab="support")
+plot(x,x*0 +1,type="n",log="x",ylim=c(0,10),ylab="support agains null")
+points(x,log(-1/(exp(1)*(1-x)*log(1-x))),type="l")
 points(x,log(1/x),col='red',type="l")
 points(x,log(-1/(log(x)*x^(1+1/log(x)))),col='blue',type="l")
 abline(h=0)
 abline(v=1.2e-4)
+legend("topright",col=c("black","red","blue"),lty=1,legend=c("closest among n","restricted choice","beta"))
 ```
