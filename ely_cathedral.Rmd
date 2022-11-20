@@ -756,8 +756,6 @@ abline(v=amax,lty=2)
 abline(v=1,col='red')
 ```
 
-
-
 # Summary of statistical analyses.
 
 For an observed angle of $x\in[0,1]$, where $x$ is understood to be
@@ -767,14 +765,22 @@ For an observed angle of $x\in[0,1]$, where $x$ is understood to be
 * $x^{-1}$  (restricted choice)
 * $-\left[\log(x)\cdot x^{1+1/\log(x)}\right]^{-1}=\frac{-1}{ex\log(x)}$.  (beta distribution)
 
+This leads to the following support functions:
+
+* $\log\left(\frac{-1}{e(1-x)\log(1-x)}\right)= -\log x-1+{\mathcal O}(x)$
+* $\log(x^{-1})=-\log(x)$
+* $\log\left(\frac{-1}{ex\log(x)}\right)=-\log x-1-\log(-\log x)$
+
+
+
 We can plot Support functions for observed values $x$ as follows:
 
 ```{r}
 x <- seq(from=5e-5,to=0.1,len=300)
 plot(x,x*0 +1,type="n",log="x",ylim=c(0,10),ylab="support agains null")
 points(x,log(-1/(exp(1)*(1-x)*log(1-x))),type="l")
-points(x,log(1/x),col='red',type="l")
-points(x,log(-1/(log(x)*x^(1+1/log(x)))),col='blue',type="l")
+points(x,-log(x),col='red',type="l")
+points(x,log(-1/(exp(1)*x*log(x))),col='blue',type="l")
 abline(h=0)
 abline(v=1.2e-4)
 legend("topright",col=c("black","red","blue"),lty=1,legend=c("closest among n","restricted choice","beta"))
