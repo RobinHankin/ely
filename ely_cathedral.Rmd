@@ -674,9 +674,31 @@ likelihood function for $n$, that is,
 $\operatorname{Prob}\left(x\mid n\right)$ would be $\propto
 n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the $p$-value
 above.  The maximum likelihood estimate for $n$ would be
-$n_\mathrm{max}=-\log(1-x)^{-1}\simeq 8334$.  The likelihood ratio
+$\hat{n}=-\log(1-x)^{-1}\simeq 8334$.  The likelihood ratio
 (against a null of $n=1$) would be
-$\frac{(1-x)^{1/\log(1-x)-1}}{\log(1-x)}=\frac{-1}{e(1-x)\log(1-x)}$.
+
+
+
+
+$$
+\frac{
+  \operatorname{Prob}\left(x\mid
+  H_\hat{n}\right)
+}{
+  \operatorname{Prob}\left(x\mid
+  H_1\right)
+}
+=
+\frac{
+  \hat{n}(1-x)^{\hat{n}-1}
+}{
+  1
+}
+=
+\frac{(1-x)^{1/\log(1-x)-1}}{\log(1-x)}=\frac{-1}{e(1-x)\log(1-x)}$$.
+
+
+
 We can plot a support curve:
 
 ```{r}
@@ -684,10 +706,11 @@ n <- 1:100000
 x <- (bearing(RHg,LOg)-bearing(RHg,ECg))/180
 S <- function(n){log(n) + (n-1)*log(1-x)}
 nmax <- -1/log(1-x)
-plot(n,S(n) - S(nmax),xlab="n",log="x",ylab="support",type="l",lwd=3)
+plot(n,S(n) - S(nmax),xlab="n",log="x",ylab="support",type="l",lwd=3,main="likelihood function for n")
 abline(v=nmax,lty=2)
 abline(h=c(0,-2))
 abline(v=1,col='red')
+text(1.5,-5,"null",col="red")
 ```
 
 We can even create a credible interval based on two units of support:
@@ -704,10 +727,10 @@ students but fewer than 37549 students.
 
 One might construct a different alternative as follows.  We consider
 hypothesis $H_\theta$, that is, Ted chooses students randomly with
-angular separation $\leq\theta$.  That is, he (somehow) identifies a
-value of $\theta$, and subsequently chooses a student with angular
-separation $\leq\theta$.  A likelihood function for $H_\theta$ might
-be
+angular separation $\leqslant\theta$.  That is, he (somehow)
+identifies a value of $\theta\in\left[0,1\right]$ and subsequently
+chooses a student with angular separation $\leq\theta$.  A likelihood
+function for $H_\theta$ might be
 
 $$
 {\mathcal L}\left(H_\theta\right)=\operatorname{Prob}\left(x\mid H_\theta\right)=
@@ -717,19 +740,32 @@ $$
 \end{array}\right.$$
 
 (where $x\simeq 1.2\times 10^{-4}$ is the $p$-value above).  With
-this, the maximum likelihood estimate for $\theta$ will be $x$;
-choosing a student from anywhere on the planet corresponds to $H_\pi$.
-likelihood ratio $\frac{{\mathcal L}\left(H_x\right)}{{\mathcal
-L}\left(H_\pi\right)}$ will simply be $x^{-1}$.
+this, the maximum likelihood estimate $\hat{\theta}$ for $\theta$ will
+be $x$; choosing a student from anywhere on the planet corresponds to
+$H_1$.  The likelihood ratio will be given by
+
+$$
+\frac{
+  \operatorname{Prob}\left(x\mid
+  H_\hat{\theta}\right)
+}{
+  \operatorname{Prob}\left(x\mid
+  H_1\right)
+}
+=
+  x^{-1}.
+$$
 
 ```{r}
 x <- 1.2e-4
 o <- sort(c(x,seq(from=3e-5,to=1,len=1000)))
 S <- -log(o)  # log-likelihood
 S[o<x] <- -Inf
-plot(o,S+log(x),type="l",lwd=3,log="x")
+plot(o,S+log(x),type="l",lwd=3,log="x",xlab="theta",main="likelihood function for theta [0,1]")
 abline(h=c(0,-2))
 abline(v=1,col='red')
+arrows(x0=x,y0=0,x1=x,y1= -8,lwd=3)
+text(0.7,-6,"null",col='red')
 ```
 
 ### Beta distribution
@@ -771,10 +807,11 @@ alpha <- seq(from=2e-3,to=1.1,len=300)
 x <- 1.2e-4
 supp <- function(alpha){log(alpha) + (alpha-1)*log(x)}
 amax <- -1/log(x)
-plot(alpha,supp(alpha)-supp(amax),log="",type="l",lwd=3)
+plot(alpha,supp(alpha)-supp(amax),log="",type="l",lwd=3,main="likelihood function for alpha")
 abline(h=c(0,-2))
 abline(v=amax,lty=2)
 abline(v=1,col='red')
+text(0.94,-4,"null",col="red")
 ```
 
 # Summary of statistical analyses.
@@ -788,13 +825,19 @@ For an observed angle of $x\in[0,1]$, where $x$ is understood to be
 
 This leads to the following support functions:
 
-* $\log\left(\frac{-1}{e(1-x)\log(1-x)}\right)= -\log x-1+{\mathcal O}(x)$
-* $\log(x^{-1})=-\log(x)$
+* $\log\left(\frac{-1}{e(1-x)\log(1-x)}\right)
+= -\log x-1+\frac{1}{2}x + \frac{7}{24}x^2+\cdots= -\log x-1+{\mathcal O}(x)$
+* $\log(x^{-1})=-\log x$
 * $\log\left(\frac{-1}{ex\log(x)}\right)=-\log x-1-\log(-\log x)$
 
+Here I note that the $\log(-\log x)$ term in the beta support grows
+_very_ slowly with decreasing $x$, although formally it does tend to
+infinity as $x\longrightarrow 0$.  Thus $\log(-\log 1.2\times
+10^{-4})\simeq 2.2$, but for example $\log(-\log 10^{-10})\simeq 3.13$
+and $\log(-\log 10^{-20})\simeq 3.82$.
 
-
-We can plot Support functions for observed values $x$ as follows:
+We can plot Support functions (that is, the support for a maximum
+likelihood hypothesis agains a null) for $x$ as follows:
 
 ```{r}
 x <- seq(from=5e-5,to=0.1,len=300)
@@ -805,4 +848,5 @@ points(x,log(-1/(exp(1)*x*log(x))),col='blue',type="l")
 abline(h=0)
 abline(v=1.2e-4)
 legend("topright",col=c("black","red","blue"),lty=1,legend=c("closest among n","restricted choice","beta"))
+text(1.2e-4,2,"1.2e-4",pos=4)
 ```
