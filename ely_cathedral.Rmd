@@ -736,14 +736,35 @@ abline(v=1,col='red')
 
 The Beta distribution $B(\alpha,\beta)$ but with $\beta=1$ gives us
 
-$$\operatorname{Prob}(\theta) = \alpha\theta^{\alpha-1},\qquad\theta\in [0,1]$$
+$$\operatorname{Prob}(x) = \alpha\theta^{\alpha-1},\qquad x\in [0,1]$$
 
-Then our null would be $\alpha=1$ (uniform).  The likelihood function
-for $\alpha$ is then ${\mathcal L}(\alpha)=\alpha x^{\alpha-1}$ which
-gives us $\hat{\alpha}=-1/\log x\simeq 0.11$.  The likelihood ratio
+(recall that we scale $\theta\in\left[0,\pi\right]$ to
+$x\in\left[0,1\right]$).  Then our null would be $\alpha=1$ (uniform).
+The likelihood function for $\alpha$ is then ${\mathcal
+L}(\alpha)=\alpha x^{\alpha-1}$ which gives us a maximum likelihood
+estimate of $\hat{\alpha}=-1/\log x\simeq 0.11$.  The likelihood ratio
 against the null would be
-$\hat{\alpha}x^{\hat{\alpha}-1}=-\left[\log(x)\cdot
-x^{1+1/\log(x)}\right]^{-1}$.
+
+$$
+\frac{
+  \operatorname{Prob}\left(x\mid
+  H_\hat{\alpha}\right)
+}{
+  \operatorname{Prob}\left(x\mid
+  H_1\right)
+}
+=
+\frac{
+   \hat{\alpha}x^{\hat{\alpha}-1}
+}{
+  1
+}
+=
+-\left[\log(x)\cdot
+x^{1+1/\log(x)}\right]^{-1}
+=
+\frac{-1}{ex\log(x)}.
+$$
 
 ```{r}
 alpha <- seq(from=2e-3,to=1.1,len=300)
