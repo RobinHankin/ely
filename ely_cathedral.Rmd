@@ -671,7 +671,7 @@ we draw from this?  One probability model might be as follows.
 Consider $n$ randomly chosen points on the sphere and our observation
 comprises the smallest (absolute) bearing $x$ from `LO-EC`.  The
 likelihood function for $n$, that is,
-$\operatorname{Prob}\left(x\left|n\right.\right)$ would be $\propto
+$\operatorname{Prob}\left(x\mid n\right)$ would be $\propto
 n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the $p$-value
 above.  The maximum likelihood estimate for $n$ would be
 $n_\mathrm{max}=-\log(1-x)^{-1}\simeq 8334$.  The likelihood ratio
@@ -710,7 +710,7 @@ separation $\leq\theta$.  A likelihood function for $H_\theta$ might
 be
 
 $$
-{\mathcal L}\left(H_\theta\right)=\operatorname{Prob}\left(x\left|H_\theta\right.\right)=
+{\mathcal L}\left(H_\theta\right)=\operatorname{Prob}\left(x\mid H_\theta\right)=
 \left\{\begin{array}{rr}
 \frac{1}{\theta}    & \theta\geqslant x\\
 0    & \theta < x
