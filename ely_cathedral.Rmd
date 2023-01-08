@@ -141,11 +141,11 @@ First, we show a diagram taken from Google earth, illustrating the
 three locations:
 
  
-```{r fig.cap="Ted's observation"}
+```{r,tedsobs, fig.cap="Ted's observation"}
 knitr::include_graphics("googlemap.png")
 ```
 
-```{r fig.cap="Diagrammatic representation of Ely Cathedral (EC), Little Ouse (LO), and Robin Hankin (RH); triangle fattened for clarity.  Distances on a spherical earth",out.width="50%"}
+```{r, diagely, fig.cap="Diagrammatic representation of Ely Cathedral (EC), Little Ouse (LO), and Robin Hankin (RH); triangle fattened for clarity.  Distances on a spherical earth",out.width="50%"}
 knitr::include_graphics("EC_LO_RH.png")
 ```
 
@@ -163,7 +163,7 @@ LO  <- c(phi=52.476138, lambda=  0.381944)  # Chimneypot on my house at Little O
 
 We can plot these, *in orthographic projection*, using R:
 
-```{r,echo=FALSE}
+```{r,plotorthog,echo=FALSE}
 LL <- rbind(RH,EC,LO)
 latx  <- LL[c(1,2,3,1),1]
 longx <- LL[c(1,2,3,1),2]
@@ -178,7 +178,7 @@ forming a very narrow triangle.  Visually, the points are on a
 straight line; we can zoom in on Ely Cathedral:
 
 
-```{r,echo=FALSE}
+```{r,plotzoom,echo=FALSE}
 RADIUS_OF_EARTH <- 6378137
 plot(
 	(longx-longx[2])*pi/180*RADIUS_OF_EARTH,
@@ -198,7 +198,7 @@ plane to Earth at Ely Cathedral, using `_t` to distinguish this
 analysis from subsequent spherical or spheroidal values.  First, we
 will convert the lat/long values to radians:
 
-```{r}
+```{r,converttoradians}
 RH <- RH*pi/180  # Convert to radians
 EC <- EC*pi/180
 LO <- LO*pi/180
@@ -206,7 +206,7 @@ LO <- LO*pi/180
 
 Then, calculate the positions on the tangent plane:
 
-```{r}
+```{r,posontang}
 EC_t <- c(x=0,y=0) # by definition
 LO_t <- RADIUS_OF_EARTH*c(x = (LO[2]-EC[2])* cos(EC[1]), y = (LO[1]-EC[1]))
 RH_t <- RADIUS_OF_EARTH*c(x = (RH[2]-EC[2])* cos(EC[1]), y = (RH[1]-EC[1]))
@@ -217,7 +217,7 @@ RH_t <- RADIUS_OF_EARTH*c(x = (RH[2]-EC[2])* cos(EC[1]), y = (RH[1]-EC[1]))
 The angles are given by the cosine rule:
 
 
-```{r}
+```{r,cosinerule}
 f <- function(d){acos((d[1]^2+d[2]^2-d[3]^2)/(2*d[1]*d[2]))} # the cosine rule in R
 c(f(dist_t[c(1,2,3)]),f(dist_t[c(3,1,2)]),f(dist_t[c(2,3,1)]))
 ```
@@ -229,7 +229,7 @@ $\left(\frac{{\mathbf x}\cdot{\mathbf y}}{{\mathbf x}\cdot{\mathbf
 x}}\right){\mathbf x}$ where we write ${\mathbf x}$ for the vector
 `RH` to `EC` and ${\mathbf y}$ for `EC` to `LO`.
 
-```{r}
+```{r,vectorrhec}
 (CA_t <- sum(LO_t * RH_t)/sum(RH_t * RH_t)*RH_t)
 CA_t-LO_t # values in meters
 (closest_dist <- sqrt(sum((CA_t-LO_t)^2))) # distance of closest approach
@@ -238,7 +238,7 @@ CA_t-LO_t # values in meters
 We can reproduce Ted's analysis by calculating the due north distance
 from `LO` to the `RH-EC` line:
 
-```{r}
+```{r,reproduceted}
 closest_dist/sin(atan(RH_t[2]/RH_t[1])) * 1.0936
 ```
 
@@ -253,7 +253,7 @@ improvement.  If $x$ is the distance from his house to my house, and
 $R$ the radius of the earth, then the correction will be ${\mathcal
 O}(x^2/R)$:
 
-```{r}
+```{r,startspherical}
 x <- dist_t[3]
 x^2/(2*RADIUS_OF_EARTH)
 ```
@@ -286,7 +286,7 @@ Haversine formula are both ${\sim}10^{-6}$.
 
 Distances between the three places, in radians:
 
-```{r}
+```{r distthree}
 EC_LO <- gcd(EC,LO)
 LO_RH <- gcd(LO,RH)
 RH_EC <- gcd(RH,EC)
@@ -294,7 +294,7 @@ RH_EC <- gcd(RH,EC)
 
 Giving
 
-```{r}
+```{r,threedist}
 gc_dist <- c(EC_LO,LO_RH,RH_EC)
 names(gc_dist) <- c("EC_LO","LO_RH","RH_EC")
 gc_dist
@@ -303,14 +303,14 @@ gc_dist
 Above we see the three sides of the triangle expressed in radians; in
 meters we have:
 
-```{r}
+```{r,distmeter}
 gc_dist * RADIUS_OF_EARTH
 ```
 
 Compare with the `geosphere` package (generally, variables calculated
 with the `geosphere` package end with `g` or `_g`).
 
-```{r}
+```{r,usegeosphere}
 RHg <- rev(RH)*180/pi
 LOg <- rev(LO)*180/pi
 ECg <- rev(EC)*180/pi
@@ -327,7 +327,7 @@ and I live about 29km from EC; and secondly, that the calculations are
 in approximate agreement, differing by $2\times 10^{-7}\,{\mathrm m}$,
 or about $0.2\,\mu{\mathrm m}$.  Now calculate the sines and cosines:
 
-```{r}
+```{r,sinecos}
 sin_a <- sin(EC_LO)
 sin_b <- sin(LO_RH)
 sin_c <- sin(RH_EC)
@@ -339,7 +339,7 @@ cos_c <- cos(RH_EC)
 
 Finally, use the Haversine formula to calculated the angles of the triangle:
 
-```{r}
+```{r haversineformula}
 angle1 <- acos((cos_c-cos_a*cos_b)/(sin_a*sin_b))
 angle2 <- acos((cos_a-cos_b*cos_c)/(sin_b*sin_c))
 angle3 <- acos((cos_b-cos_c*cos_a)/(sin_c*sin_a))
@@ -354,7 +354,7 @@ original observation.  Verify with `geosphere::bearing()`, for the
 moment using spherical trigonometry; calculate `angles_g` with
 geosphere and compare:
 
-```{r echo=TRUE}
+```{r,seesmallangles, echo=TRUE}
 angles_g <-
 c(
 bearing(LOg,ECg, f=0)-bearing(LOg,RHg, f=0),
@@ -363,7 +363,7 @@ bearing(RHg,LOg, f=0)-bearing(RHg,ECg, f=0),
 ) * pi/180
 ```
 
-```{r}
+```{r,makematrix}
 rbind(angles,angles_g,diff=angles-angles_g)
 ```
 
@@ -372,7 +372,7 @@ We see that the approach used here agrees closely with that of
 angles differ by about 1\%.  We can interpret the smallness of angles
 `EC_LO_RH` and `LO_RH_EC` in two ways.  Firstly:
 
-```{r}
+```{r firstoftwo}
 dist <- c(
 gcd(LO,RH)*c(angle1,angle2),
 gcd(LO,EC)*c(angle1)
@@ -386,20 +386,20 @@ shows the distance from RH-LO to EC.  See how small these values are!
 We can verify against `dist_g`, the same distances calculated with
 `dist2gc()` of the `geosphere` package:
 
-```{r echo=TRUE}
+```{r,verifysmall,echo=TRUE}
 dist_g <- c(dist2gc(ECg,LOg,RHg),dist2gc(RHg,ECg,LOg),dist2gc(LOg,RHg,ECg))
 ```
 
 We can compare these distances directly:
 
-```{r}
+```{r,smallcompare}
 (distcomp <- rbind(d=dist,d_g=dist_g,`d-d_g`=dist-dist_g))
 ```
 
 Above, we see agreement to within a few cm, or about $0.5\%$.
 Secondly, we can interpret by calculating the excess angle:
 
-```{r}
+```{r,agreementwithincm}
 (E <- sum(angles) - pi)
 ```
 
@@ -429,27 +429,27 @@ which gives a positive answer (which turns out to be reasonably
 robust).  I do not know why the results are so similar in magnitude.
 However, we can use this value to calculate the area of the triangle:
 
-```{r}
+```{r calculatearea}
 (area <- 5.540514e-9*RADIUS_OF_EARTH^2)
 ```
 
 Perhaps the area in square kilometers is more interesting:
 
-```{r}
+```{r areasqkm}
 area/1e6  
 ```
 
 Using the approximation of plane triangle in which area is half base
 times height, we might ask how close line RH-LO passes EC:
 
-```{r}
+```{r howcloseistheline}
 (dist_area_calc <- 2*area/(gcd(LO,RH)*RADIUS_OF_EARTH))
 ```
 
 that is, about eleven meters.  We can compare this value with that
 calculated in `distcomp` above:
 
-```{r}
+```{r distcompclose}
 distcomp[1:2,3]- dist_area_calc
 ```
 
@@ -465,7 +465,7 @@ that the latitude given by Google Maps is geodetic latitude.  Most of
 the calculations are set to `echo=FALSE` as the technical details are
 rather prolix.
 
-```{r, echo=FALSE}
+```{r, ellipsoidalearth,echo=FALSE}
   f <- 1/298.257223563    # WGS-84
 
 
@@ -533,7 +533,7 @@ vincenty <- function(p1,p2){ # p1 and p2 are point 1 and point 2, (geodetic) lat
 ```
 
 
-```{r}
+```{r uselambertdistance}
 lamb <- c(
  lambert_distance(EC,LO),
  lambert_distance(LO,RH),
@@ -546,7 +546,7 @@ Above, `lamb` refers to the Lambert distance function, defined on the
 ellipsoidal earth.  The distances are very similar to those
 calculated on the great circle:
 
-```{r}
+```{r lambgreatcirc}
 rbind(lamb, gc_dist)
 (lamb - gc_dist) * RADIUS_OF_EARTH
 ```
@@ -563,7 +563,7 @@ minimal length.  We are interested in the initial and final azimuth of
 the path.  We can also compare the results with `angles_g`, created
 with `geodesic_inverse()` from the `geosphere` package.
 
-```{r,echo=FALSE}
+```{r,geospherecomp,echo=FALSE}
 angles_g <- 
 c(
   geodesic_inverse(LOg,ECg)[1,2]-geodesic_inverse(LOg,RHg)[1,2], 
@@ -573,7 +573,7 @@ c(
 ```
 
 
-```{r}
+```{r usevincenty}
 c(vincenty(RH,LO)[1],vincenty(RH,EC)[1]) # azimuths of paths RH-LO and RH-EC
 angles_gcd <- angles  # angles of EC-LO-RH on spherical earth
 angles_lamb <- c(     # angles of EC-LO-RH on ellipsoidal earth
@@ -587,7 +587,7 @@ angles_lamb
 We can now compare `angles_lamb` and `angles_g` (ellipsoidal; my
 figures and `geosphere` respectively) with `angles_gcd` (spherical):
 
-```{r}
+```{r userbind}
 rbind(angles_lamb,angles_g,angles_gcd)
 ```
 
@@ -662,7 +662,7 @@ passing closer to `LO` than `RH-EC` does).  Using `geosphere`, first
 with `f=0` for a spherical earth and then using the default value from
 WGS-84:
 
-```{r}
+```{r closestofn}
 c(bearing(RHg,LOg,f=0)-bearing(RHg,ECg,f=0),
 bearing(RHg,LOg)-bearing(RHg,ECg))/180
 ```
@@ -704,7 +704,7 @@ $$
 
 We can plot a support curve:
 
-```{r}
+```{r supportforclosestofn}
 n <- 1:100000
 x <- (bearing(RHg,LOg)-bearing(RHg,ECg))/180
 S <- function(n){log(n) + (n-1)*log(1-x)}
@@ -718,7 +718,7 @@ text(1.5,-5,"null",col="red")
 
 We can even create a credible interval based on two units of support:
 
-```{r}
+```{r credibleclosestofn}
 f <- function(n){S(n)-S(nmax)+2}  # x a root of f() means S(x)=S(nmax)-2
 c(uniroot(f,c(1,9000))$root,uniroot(f,c(8000,1e5))$root)
 ```
@@ -759,7 +759,7 @@ $$
   x^{-1}.
 $$
 
-```{r}
+```{r plotclosestofn}
 x <- 1.2e-4
 o <- sort(c(x,seq(from=3e-5,to=1,len=1000)))
 S <- -log(o)  # log-likelihood
@@ -805,7 +805,7 @@ x^{1+1/\log(x)}\right]^{-1}
 \frac{-1}{ex\log(x)}.
 $$
 
-```{r}
+```{r betaanalysis}
 alpha <- seq(from=2e-3,to=1.1,len=300)
 x <- 1.2e-4
 supp <- function(alpha){log(alpha) + (alpha-1)*log(x)}
@@ -842,7 +842,7 @@ and $\log(-\log 10^{-20})\simeq 3.82$.
 We can plot Support functions (that is, the support for a maximum
 likelihood hypothesis agains a null) for $x$ as follows:
 
-```{r}
+```{r plotthreesupports}
 x <- seq(from=5e-5,to=0.1,len=300)
 plot(x,x*0 +1,type="n",log="x",ylim=c(0,10),ylab="support agains null")
 points(x,log(-1/(exp(1)*(1-x)*log(1-x))),type="l")
@@ -857,7 +857,7 @@ text(1.2e-4,2,"1.2e-4",pos=4)
 At our value of $x=1.2\times 10^{-4}$ we can calculate the support
 against all three nulls:
 
-```{r}
+```{r threenulls}
 x <- 1.2e-4
 c(
 closest    = log(-1/(exp(1)*(1-x)*log(1-x))),
@@ -865,6 +865,3 @@ restricted = -log(x),
 beta       = log(-1/(exp(1)*x*log(x)))
 )
 ```
-
-
-
