@@ -631,7 +631,9 @@ What _more_ impressive coincidences might we consider?  The only
 sensible one is the double coincidence of both collinearity of
 LO-RC-RH _and_ equality of the LO-EC and EC-RH distances (arguably,
 simultaneous equidistance and perpendicularity might technically
-count, but this is lame at best).
+count, but this is lame at best).  Formally, collinearity of LO-RC-RH
+and equality of LO-EC vs EC-RH would be consistent with our living
+together, but for some reason not having noticed this fact.
 
 It does not seem unreasonable to ask how close an alignment we could
 expect, the observation being a realization of some process which
