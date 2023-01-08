@@ -1,5 +1,5 @@
 ---
-title: "ely_cathedral_and_caldecote"
+title: "A remarkable geographical coincidence"
 output: html_document
 date: "2022-11-09"
 ---
@@ -7,8 +7,6 @@ date: "2022-11-09"
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-## A remarkable geographical coincidence
 
 Once upon a time I was collaborating with Ted Harding via email. I was
 sitting at home, in Cambridge, and had been exchanging emails most of
