@@ -10,9 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## A remarkable geographical coincidence
 
-Once upon a time I was collaborating with Ted Harding via email. I
-was sitting at home, in Cambridge, and signed off with a short
-greeting.  Next morning I received this:
+Once upon a time I was collaborating with Ted Harding via email. I was
+sitting at home, in Cambridge, and had been exchanging emails most of
+the evening.  It was getting late and I sent one last email, signing
+off with a short greeting which read, verbatim, "best wishes from a
+dark and damp Caldecote"; it was pouring with rain and a strong wind
+was blowing.  Next morning I received this:
 
 ```
 
@@ -850,3 +853,18 @@ abline(v=1.2e-4)
 legend("topright",col=c("black","red","blue"),lty=1,legend=c("closest among n","restricted choice","beta"))
 text(1.2e-4,2,"1.2e-4",pos=4)
 ```
+
+At our value of $x=1.2\times 10^{-4}$ we can calculate the support
+against all three nulls:
+
+```{r}
+x <- 1.2e-4
+c(
+closest    = log(-1/(exp(1)*(1-x)*log(1-x))),
+restricted = -log(x),
+beta       = log(-1/(exp(1)*x*log(x)))
+)
+```
+
+
+
