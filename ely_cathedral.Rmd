@@ -1,7 +1,10 @@
 ---
 title: "A remarkable geographical coincidence"
-output: html_document
-date: "2022-11-09"
+author: Robin K. S. Hankin
+output:
+  bookdown::html_document2:
+    fig_caption: yes
+    number_sections: no
 ---
 
 ```{r setup, include=FALSE}
@@ -50,6 +53,18 @@ replicable?  Another try gives  52.206272,-0.025893
 Perhaps you need the back door, where I was
 sitting when I emailed you:  52.206367,-0.025846 and
 a replicate of  52.206373,-0.02585
+```
+
+After I replied I could not help but wonder what Ted's motivation was.
+But neither me nor Lesley could even suggest any reasonable ideas:
+
+```
+> Hello Ted
+> thanks for this!
+>
+> the best my wife and I could come up with was your identifying
+> a sudden rain event on a radar and noticing that it was over
+> Caldecote!
 ```
 
 
@@ -103,17 +118,10 @@ the spherical analysis revealed an even more impressive coincidence.
 Ted's reply [my words preceded with a ">"]:
 
 ```
-> Hello Ted
-> thanks for this!
->
-> the best my wife and I could come up with was your identifying
-> a sudden rain event on a radar and noticing that it was over
-> Caldecote!
-
 Well, it was much more "psychological" than that! In fact your
 "dark and damp Caldecote" had suggested that conditions at Caldecote
 were more dire than they seemed to be around my neck of the woods,
-which prompted a mental image of where we respectively were. Since
+which prompted a mental image of where we respectively were.  Since
 Ely is a sort of geographical "hub" for me, and I knew pretty well
 where Caldecote is, I suddenly saw all three lined up. A glance at
 my Road Atlas backed this up. Then the possibility of a really close
@@ -133,24 +141,25 @@ if allowing for oblateness would change things much; but that's
 a more sophisticated calculation and I'm putting it aside ...
 ```
 
-# Analysis
+# Mathematical analysis
 
-First, we show a diagram taken from Google earth, illustrating the
-three locations:
-
+Here I give a slightly extended and streamlined version of the
+analysis I sent to Ted.  Figure \@ref(fig:tedsobs) shows a diagram
+taken from Google Earth illustrating the three locations, and figure
+\@ref(fig:diagely) shows a diagrammatic representation.  We see the
+three points, together with lines joining them, forming almost a
+perfect straight line.
  
-```{r,tedsobs, fig.cap="Ted's observation"}
+```{r,tedsobs, echo=FALSE, fig.cap="Ted's observation: three accurately colinear points"}
 knitr::include_graphics("googlemap.png")
 ```
 
-```{r, diagely, fig.cap="Diagrammatic representation of Ely Cathedral (EC), Little Ouse (LO), and Robin Hankin (RH); triangle fattened for clarity.  Distances on a spherical earth",out.width="50%"}
+```{r, diagely, echo=FALSE, fig.cap="Diagrammatic representation of Ely Cathedral (EC), Little Ouse (LO), and Robin Hankin (RH); triangle fattened for clarity.  Distances on a spherical earth",out.width="50%"}
 knitr::include_graphics("EC_LO_RH.png")
 ```
 
-Above we see the three points, together with lines joining them,
-forming almost a perfect straight line.  Now the latitude and
-longitude of three positions: my house (`RH`), Ely Cathedral (`EC`)
-and Ted's house (`LO`, Little Ouse):
+Now the latitude and longitude of three positions: my house (`RH`),
+Ely Cathedral (`EC`) and Ted's house (`LO`, Little Ouse):
 
 ```{r latandlong}
 RH  <- c(phi=52.206275, lambda= -0.025892)  # deg N & E (front door)
@@ -161,22 +170,24 @@ LO  <- c(phi=52.476138, lambda=  0.381944)  # Chimneypot on my house at Little O
 
 We can plot these, *in orthographic projection*, using R:
 
-```{r,plotorthog,echo=FALSE}
+```{r,plotorthog,fig.cap="R plot of the three locations in orthographic projection",echo=FALSE}
 LL <- rbind(RH,EC,LO)
 latx  <- LL[c(1,2,3,1),1]
 longx <- LL[c(1,2,3,1),2]
 
 aspect <- 1/cos(LO[1]*pi/180)
-plot(longx,latx,asp=aspect,type='b',xlab="longitude",ylab="latitude",main="Little Ouse (LO) , Ely Cathedral (EC), and Caldecote (RH)",sub="orthographic projection")
+plot(longx,latx,asp=aspect,type='b',xlab="longitude",ylab="latitude",main="Little Ouse (LO) , Ely Cathedral (EC), and Caldecote (RH)")
 for(i in 1:3){text(LL[i,2],LL[i,1],rownames(LL)[i],pos=4)}
 ```
 
-Above we see the three points, together with lines joining them,
-forming a very narrow triangle.  Visually, the points are on a
-straight line; we can zoom in on Ely Cathedral:
+Figure \@ref(fig:plotorthog) shows the three points, together with
+lines joining them, forming a very narrow triangle.  Visually, the
+points are on a straight line.  Figure \@ref(fig:plotzoom) shows a
+zoomed-in view of Ely Cathedral, showing that the line from RH to LO
+passes within 100m or so of EC.
 
 
-```{r,plotzoom,echo=FALSE}
+```{r,plotzoom,echo=FALSE,fig.cap="zoomed-in view of Ely Cathedral (EC), together with lines EC-LO, EC-RH, and LO-RH"}
 RADIUS_OF_EARTH <- 6378137
 plot(
 	(longx-longx[2])*pi/180*RADIUS_OF_EARTH,
@@ -185,9 +196,6 @@ plot(
 	xlim=c(-50,50),ylim=c(-50,50))
 text(0,0,"EC",pos=4)
 ```
-
-Above we see that the line from RH to LO passes within 100m or so of EC.
-
 
 ## Tangent plane at Ely Cathedral
 
@@ -641,8 +649,7 @@ and LO, and consider a randomly chosen point P.  Observe that this
 approach contains zero selection bias: we are not considering any
 selection that Ted might have carried out.
 
-There seem to be three different alternative hypotheses one might
-entertain:
+There are three different alternative hypotheses one might entertain:
 
 * closest among $n$
 * restricted to $\delta\theta$
@@ -702,9 +709,9 @@ $$
 
 
 
-We can plot a support curve:
+We can plot a support curve for $n$, shown in figure \@ref(fig:supportforclosestofn).
 
-```{r supportforclosestofn}
+```{r supportforclosestofn,echo=FALSE,fig.cap="Log-likelihood for n"}
 n <- 1:100000
 x <- (bearing(RHg,LOg)-bearing(RHg,ECg))/180
 S <- function(n){log(n) + (n-1)*log(1-x)}
@@ -716,7 +723,9 @@ abline(v=1,col='red')
 text(1.5,-5,"null",col="red")
 ```
 
-We can even create a credible interval based on two units of support:
+We can go on to use the likelihood function shown in figure
+\@ref(fig:supportforclosestofn) to create a credible interval based on
+two units of support:
 
 ```{r credibleclosestofn}
 f <- function(n){S(n)-S(nmax)+2}  # x a root of f() means S(x)=S(nmax)-2
@@ -726,7 +735,7 @@ c(uniroot(f,c(1,9000))$root,uniroot(f,c(8000,1e5))$root)
 We can be reasonably confident that Ted considered more than 437
 students but fewer than 37549 students.
 
-## restricted to small angles
+## Restricted to small angles
 
 One might construct a different alternative as follows.  We consider
 hypothesis $H_\theta$, that is, Ted chooses students randomly with
@@ -742,10 +751,11 @@ $$
 0    & \theta < x
 \end{array}\right.$$
 
-(where $x\simeq 1.2\times 10^{-4}$ is the $p$-value above).  With
-this, the maximum likelihood estimate $\hat{\theta}$ for $\theta$ will
-be $x$; choosing a student from anywhere on the planet corresponds to
-$H_1$.  The likelihood ratio will be given by
+(where $x\simeq 1.2\times 10^{-4}$ is the $p$-value above); see figure
+\@ref(fig:plotclosestofn).  With this, the maximum likelihood estimate
+$\hat{\theta}$ for $\theta$ will be $x$; choosing a student from
+anywhere on the planet corresponds to $H_1$.  The likelihood ratio
+will be given by
 
 $$
 \frac{
@@ -759,12 +769,12 @@ $$
   x^{-1}.
 $$
 
-```{r plotclosestofn}
+```{r plotclosestofn, echo=FALSE,fig.cap="Log-likelihood function for theta"}
 x <- 1.2e-4
 o <- sort(c(x,seq(from=3e-5,to=1,len=1000)))
 S <- -log(o)  # log-likelihood
 S[o<x] <- -Inf
-plot(o,S+log(x),type="l",lwd=3,log="x",xlab="theta",main="likelihood function for theta [0,1]")
+plot(o,S+log(x),type="l",lwd=3,log="x",xlab="theta",main="Log-likelihood function for theta [0,1]")
 abline(h=c(0,-2))
 abline(v=1,col='red')
 arrows(x0=x,y0=0,x1=x,y1= -8,lwd=3)
@@ -780,9 +790,9 @@ $$\operatorname{Prob}(x) = \alpha\theta^{\alpha-1},\qquad x\in [0,1]$$
 (recall that we scale $\theta\in\left[0,\pi\right]$ to
 $x\in\left[0,1\right]$).  Then our null would be $\alpha=1$ (uniform).
 The likelihood function for $\alpha$ is then ${\mathcal
-L}(\alpha)=\alpha x^{\alpha-1}$ which gives us a maximum likelihood
-estimate of $\hat{\alpha}=-1/\log x\simeq 0.11$.  The likelihood ratio
-against the null would be
+L}(\alpha)=\alpha x^{\alpha-1}$ (figure \@ref(fig:betaanalysis)),
+which gives us a maximum likelihood estimate of $\hat{\alpha}=-1/\log
+x\simeq 0.11$.  The likelihood ratio against the null would be
 
 $$
 \frac{
@@ -805,19 +815,19 @@ x^{1+1/\log(x)}\right]^{-1}
 \frac{-1}{ex\log(x)}.
 $$
 
-```{r betaanalysis}
+```{r betaanalysis,fig.cap="Log-likelihood for alpha",echo=FALSE}
 alpha <- seq(from=2e-3,to=1.1,len=300)
 x <- 1.2e-4
 supp <- function(alpha){log(alpha) + (alpha-1)*log(x)}
 amax <- -1/log(x)
-plot(alpha,supp(alpha)-supp(amax),log="",type="l",lwd=3,main="likelihood function for alpha")
+plot(alpha,supp(alpha)-supp(amax),log="",type="l",lwd=3,main="Log-likelihood function for alpha")
 abline(h=c(0,-2))
 abline(v=amax,lty=2)
 abline(v=1,col='red')
 text(0.94,-4,"null",col="red")
 ```
 
-# Summary of statistical analyses.
+# Summary of statistical analyses
 
 For an observed angle of $x\in[0,1]$, where $x$ is understood to be
 "small", we have three likelihood ratios:
@@ -837,14 +847,13 @@ Here I note that the $\log(-\log x)$ term in the beta support grows
 _very_ slowly with decreasing $x$, although formally it does tend to
 infinity as $x\longrightarrow 0$.  Thus $\log(-\log 1.2\times
 10^{-4})\simeq 2.2$, but for example $\log(-\log 10^{-10})\simeq 3.13$
-and $\log(-\log 10^{-20})\simeq 3.82$.
+and $\log(-\log 10^{-20})\simeq 3.82$.  We can plot Support functions
+(that is, the support for a maximum likelihood hypothesis agains a
+null) for $x$, shown in figure \@ref(fig:plotthreesupports).
 
-We can plot Support functions (that is, the support for a maximum
-likelihood hypothesis agains a null) for $x$ as follows:
-
-```{r plotthreesupports}
+```{r plotthreesupports,fig.cap="Support curves for the three models",echo=FALSE}
 x <- seq(from=5e-5,to=0.1,len=300)
-plot(x,x*0 +1,type="n",log="x",ylim=c(0,10),ylab="support agains null")
+plot(x,x*0 +1,type="n",log="x",ylim=c(0,10),ylab="support against null")
 points(x,log(-1/(exp(1)*(1-x)*log(1-x))),type="l")
 points(x,-log(x),col='red',type="l")
 points(x,log(-1/(exp(1)*x*log(x))),col='blue',type="l")
@@ -854,8 +863,8 @@ legend("topright",col=c("black","red","blue"),lty=1,legend=c("closest among n","
 text(1.2e-4,2,"1.2e-4",pos=4)
 ```
 
-At our value of $x=1.2\times 10^{-4}$ we can calculate the support
-against all three nulls:
+At our observed value of $x=1.2\times 10^{-4}$ we can calculate the
+support against all three nulls:
 
 ```{r threenulls}
 x <- 1.2e-4
