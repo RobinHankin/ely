@@ -313,8 +313,9 @@ meters we have:
 gc_dist * RADIUS_OF_EARTH
 ```
 
-Compare with the `geosphere` package (generally, variables calculated
-with the `geosphere` package end with `g` or `_g`).
+As a verification, we may compare these results with those of the
+`geosphere` package (generally, variables calculated with the
+`geosphere` package end with `g` or `_g`).
 
 ```{r,usegeosphere}
 RHg <- rev(RH)*180/pi
@@ -328,8 +329,9 @@ RH_ECg = distCosine(RHg,ECg))
 rbind(gc_dist=gc_dist*RADIUS_OF_EARTH,gc_distg,diff=gc_dist*RADIUS_OF_EARTH-gc_distg)
 ```
 
-Above we see two things: firstly, that Ted lives about 11km from EC
-and I live about 29km from EC; and secondly, that the calculations are
+(the above result is given in meters).  Above we see two things:
+firstly, that Ted lives about 11.77km from EC and I live about 29.1km
+from EC; and secondly (from the third line), that the calculations are
 in approximate agreement, differing by $2\times 10^{-7}\,{\mathrm m}$,
 or about $0.2\,\mu{\mathrm m}$.  Now calculate the sines and cosines:
 
@@ -355,10 +357,11 @@ names(angles) <-  c("EC_LO_RH","LO_RH_EC","RH_EC_LO")
 angles
 ```
 
-Observe how small two of the angles are, the second of which was Ted's
-original observation.  Verify with `geosphere::bearing()`, for the
-moment using spherical trigonometry; calculate `angles_g` with
-geosphere and compare:
+(above we see the angles of the triangle shown in figure
+\@ref(fig:diagely)).  Observe how small two of the angles are, the second of
+which was Ted's original observation.  Verify with
+`geosphere::bearing()`, for the moment using spherical trigonometry;
+calculate `angles_g` with geosphere and compare:
 
 ```{r,seesmallangles, echo=TRUE}
 angles_g <-
@@ -396,7 +399,8 @@ We can verify against `dist_g`, the same distances calculated with
 dist_g <- c(dist2gc(ECg,LOg,RHg),dist2gc(RHg,ECg,LOg),dist2gc(LOg,RHg,ECg))
 ```
 
-We can compare these distances directly:
+We can compare these distances as calculated by hand and by
+`geosphere` directly:
 
 ```{r,smallcompare}
 (distcomp <- rbind(d=dist,d_g=dist_g,`d-d_g`=dist-dist_g))
@@ -741,7 +745,7 @@ One might construct a different alternative as follows.  We consider
 hypothesis $H_\theta$, that is, Ted chooses students randomly with
 angular separation $\leqslant\theta$.  That is, he (somehow)
 identifies a value of $\theta\in\left[0,1\right]$ and subsequently
-chooses a student with angular separation $\leq\theta$.  A likelihood
+chooses a student with angular separation $\leqslant\theta$.  A likelihood
 function for $H_\theta$ might be
 
 $$
@@ -851,7 +855,7 @@ and $\log(-\log 10^{-20})\simeq 3.82$.  We can plot Support functions
 (that is, the support for a maximum likelihood hypothesis agains a
 null) for $x$, shown in figure \@ref(fig:plotthreesupports).
 
-```{r plotthreesupports,fig.cap="Support curves for the three models",echo=FALSE}
+```{r plotthreesupports,fig.cap="Support curves for the three models: note logarithmic x axis",echo=FALSE}
 x <- seq(from=5e-5,to=0.1,len=300)
 plot(x,x*0 +1,type="n",log="x",ylim=c(0,10),ylab="support against null")
 points(x,log(-1/(exp(1)*(1-x)*log(1-x))),type="l")
