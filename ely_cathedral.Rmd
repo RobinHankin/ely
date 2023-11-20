@@ -691,9 +691,6 @@ above.  The maximum likelihood estimate for $n$ would be
 $\hat{n}=-\log(1-x)^{-1}\simeq 8334$.  The likelihood ratio
 (against a null of $n=1$) would be
 
-
-
-
 $$
 \frac{
   \operatorname{Prob}\left(x\mid
@@ -710,8 +707,6 @@ $$
 }
 =
 \frac{(1-x)^{1/\log(1-x)-1}}{\log(1-x)}=\frac{-1}{e(1-x)\log(1-x)}$$.
-
-
 
 We can plot a support curve for $n$, shown in figure \@ref(fig:supportforclosestofn).
 
@@ -739,14 +734,28 @@ c(uniroot(f,c(1,9000))$root,uniroot(f,c(8000,1e5))$root)
 We can be reasonably confident that Ted considered more than 437
 students but fewer than 37549 students.
 
+**Note on asymptotic behaviour** Above we used calculus to find
+$\hat{n}$, but equally we could consider $f(n)$ restricted to the
+positive integers; we have $f(n+1)/f(n)=(1+1/n)(1-x)$.  This would
+suggest that the maximum value of $f(n)$ would be $\lceil
+1/x-1\rceil$.  Although this looks very different from the calculus
+value of $-\log(1-x)^{-1}$ we can observe that
+
+$$-\log(1-x)^{-1}=\frac{1}{x}-\frac{1}{2}-\frac{x}{12} + \mathcal{O}(x^2)$$
+
+So, neglecting terms of first or higher order in $x$ (!) we see the
+two values for $\hat{n}$ are $\frac{1}{x}-\frac{1}{2}$ via calculus,
+and $\lceil\frac{1}{x}-1\rceil$ via integers: close enough.
+
 ## Restricted to small angles
 
 One might construct a different alternative as follows.  We consider
 hypothesis $H_\theta$, that is, Ted chooses students randomly with
-angular separation $\leqslant\theta$.  That is, he (somehow)
-identifies a value of $\theta\in\left[0,1\right]$ and subsequently
-chooses a student with angular separation $\leqslant\theta$.  A likelihood
-function for $H_\theta$ might be
+angular separation $\leqslant\theta$ (here, $\theta$ is our object of
+inference).  That is, he chooses a value of
+$\theta\in\left[0,1\right]$ and subsequently identifies a student with
+angular separation $\leqslant\theta$.  He then asks for their exact
+latitude and longitude.  A likelihood function for $H_\theta$ might be
 
 $$
 {\mathcal L}\left(H_\theta\right)=\operatorname{Prob}\left(x\mid H_\theta\right)=
@@ -789,14 +798,17 @@ text(0.7,-6,"null",col='red')
 
 The Beta distribution $B(\alpha,\beta)$ but with $\beta=1$ gives us
 
-$$\operatorname{Prob}(x) = \alpha\theta^{\alpha-1},\qquad x\in [0,1]$$
+$$\operatorname{Prob}(x) = \alpha x^{\alpha-1},\qquad x\in [0,1]$$
 
 (recall that we scale $\theta\in\left[0,\pi\right]$ to
-$x\in\left[0,1\right]$).  Then our null would be $\alpha=1$ (uniform).
-The likelihood function for $\alpha$ is then ${\mathcal
-L}(\alpha)=\alpha x^{\alpha-1}$ (figure \@ref(fig:betaanalysis)),
-which gives us a maximum likelihood estimate of $\hat{\alpha}=-1/\log
-x\simeq 0.11$.  The likelihood ratio against the null would be
+$x\in\left[0,1\right]$).  Then our null would be $\alpha=1$ (uniform),
+and a sensible alternative would be $\alpha$ being small positive
+[e.g. $\alpha=0.1$], for which the density function favours small
+values of $x$.  The likelihood function for $\alpha$ is then
+${\mathcal L}(\alpha)=\alpha x^{\alpha-1}$ (figure
+\@ref(fig:betaanalysis)), which gives us a maximum likelihood estimate
+of $\hat{\alpha}=-1/\log x\simeq 0.11$.  The likelihood ratio against
+the null would be
 
 $$
 \frac{
