@@ -655,97 +655,14 @@ selection that Ted might have carried out.
 
 There are three different alternative hypotheses one might entertain:
 
-* closest among $n$
 * restricted to $\delta\theta$
 * beta distribution
+* closest among $n$
 
 I will analyse each in turn.
 
 NB: angles are scaled so that the distribution is the interval $[0,1]$
 and _not_ $[0,\pi]$ or $[0,2\pi)$.
-
-### Closest among $n$
-
-A reasonable value for a $p$-value would be to calculate the
-probability that a randomly chosen point `P` on the earth has angle
-`EC-P-LO` smaller than `EC-RH-LO` (which would result in `RH-P`
-passing closer to `LO` than `RH-EC` does).  Using `geosphere`, first
-with `f=0` for a spherical earth and then using the default value from
-WGS-84:
-
-```{r closestofn}
-c(bearing(RHg,LOg,f=0)-bearing(RHg,ECg,f=0),
-bearing(RHg,LOg)-bearing(RHg,ECg))/180
-```
-
-(dividing by $180$ to give a $[0,1]$ range).  Both give a $p$-value of
-about $1.2\times 10^{-4}$, strong grounds to reject our null.  We will
-use $x=1.2\times 10^{-4}$ exactly from now on.  But what inference can
-we draw from this?  One probability model might be as follows.
-Consider $n$ randomly chosen points on the sphere and our observation
-comprises the smallest (absolute) bearing $x$ from `LO-EC`.  The
-likelihood function for $n$, that is,
-$\operatorname{Prob}\left(x\mid n\right)$ would be $\propto
-n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the $p$-value
-above.  The maximum likelihood estimate for $n$ would be
-$\hat{n}=-\log(1-x)^{-1}\simeq 8334$.  The likelihood ratio
-(against a null of $n=1$) would be
-
-$$
-\frac{
-  \operatorname{Prob}\left(x\mid
-  H_\hat{n}\right)
-}{
-  \operatorname{Prob}\left(x\mid
-  H_1\right)
-}
-=
-\frac{
-  \hat{n}(1-x)^{\hat{n}-1}
-}{
-  1
-}
-=
-\frac{(1-x)^{1/\log(1-x)-1}}{\log(1-x)}=\frac{-1}{e(1-x)\log(1-x)}$$.
-
-We can plot a support curve for $n$, shown in figure \@ref(fig:supportforclosestofn).
-
-```{r supportforclosestofn,echo=FALSE,fig.cap="Log-likelihood for n"}
-n <- 1:100000
-x <- (bearing(RHg,LOg)-bearing(RHg,ECg))/180
-S <- function(n){log(n) + (n-1)*log(1-x)}
-nmax <- -1/log(1-x)
-plot(n,S(n) - S(nmax),xlab="n",log="x",ylab="support",type="l",lwd=3,main="likelihood function for n")
-abline(v=nmax,lty=2)
-abline(h=c(0,-2))
-abline(v=1,col='red')
-text(1.5,-5,"null",col="red")
-```
-
-We can go on to use the likelihood function shown in figure
-\@ref(fig:supportforclosestofn) to create a credible interval based on
-two units of support:
-
-```{r credibleclosestofn}
-f <- function(n){S(n)-S(nmax)+2}  # x a root of f() means S(x)=S(nmax)-2
-c(uniroot(f,c(1,9000))$root,uniroot(f,c(8000,1e5))$root)
-```
-
-We can be reasonably confident that Ted considered more than 437
-students but fewer than 37549 students.
-
-**Note on asymptotic behaviour** Above we used calculus to find
-$\hat{n}$, but equally we could consider $f(n)$ restricted to the
-positive integers; we have $f(n+1)/f(n)=(1+1/n)(1-x)$.  This would
-suggest that the maximum value of $f(n)$ would be $\lceil
-1/x-1\rceil$.  Although this looks very different from the calculus
-value of $-\log(1-x)^{-1}$ we can observe that
-
-$$-\log(1-x)^{-1}=\frac{1}{x}-\frac{1}{2}-\frac{x}{12} + \mathcal{O}(x^2)$$
-
-So, neglecting terms of first or higher order in $x$ (!) we see the
-two values for $\hat{n}$ are $\frac{1}{x}-\frac{1}{2}$ via calculus,
-and $\lceil\frac{1}{x}-1\rceil$ via integers: close enough.
 
 ## Restricted to small angles
 
@@ -843,6 +760,108 @@ abline(v=1,col='red')
 text(0.94,-4,"null",col="red")
 ```
 
+
+### Closest among $n$
+
+A reasonable value for a $p$-value would be to calculate the
+probability that a randomly chosen point `P` on the earth has angle
+`EC-P-LO` smaller than `EC-RH-LO` (which would result in `RH-P`
+passing closer to `LO` than `RH-EC` does).  Using `geosphere`, first
+with `f=0` for a spherical earth and then using the default value from
+WGS-84:
+
+```{r closestofn}
+c(bearing(RHg,LOg,f=0)-bearing(RHg,ECg,f=0),
+bearing(RHg,LOg)-bearing(RHg,ECg))/180
+```
+
+(dividing by $180$ to give a $[0,1]$ range).  Both give a $p$-value of
+about $1.2\times 10^{-4}$, strong grounds to reject our null.  We will
+use $x=1.2\times 10^{-4}$ exactly from now on.  But what inference can
+we draw from this?  One probability model might be as follows.
+Consider $n$ randomly chosen points on the sphere and our observation
+comprises the smallest (absolute) bearing $x$ from `LO-EC`.  The
+likelihood function for $n$, that is,
+$\operatorname{Prob}\left(x\mid n\right)$ would be $\propto
+n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the $p$-value
+above.  The maximum likelihood estimate for $n$ would be
+$\hat{n}=-\log(1-x)^{-1}\simeq 8334$.  The likelihood ratio
+(against a null of $n=1$) would be
+
+$$
+\frac{
+  \operatorname{Prob}\left(x\mid
+  H_\hat{n}\right)
+}{
+  \operatorname{Prob}\left(x\mid
+  H_1\right)
+}
+=
+\frac{
+  \hat{n}(1-x)^{\hat{n}-1}
+}{
+  1
+}
+=
+\frac{(1-x)^{1/\log(1-x)-1}}{\log(1-x)}=\frac{-1}{e(1-x)\log(1-x)}$$.
+
+We can plot a support curve for $n$, shown in figure \@ref(fig:supportforclosestofn).
+
+```{r supportforclosestofn,echo=FALSE,fig.cap="Log-likelihood for n"}
+n <- 1:100000
+x <- (bearing(RHg,LOg)-bearing(RHg,ECg))/180
+S <- function(n){log(n) + (n-1)*log(1-x)}
+nmax <- -1/log(1-x)
+plot(n,S(n) - S(nmax),xlab="n",log="x",ylab="support",type="l",lwd=3,main="likelihood function for n")
+abline(v=nmax,lty=2)
+abline(h=c(0,-2))
+abline(v=1,col='red')
+text(1.5,-5,"null",col="red")
+```
+
+To maintain visual continuity with the first two analyses, it is
+arguably better to plot the reciprocal of $n$ on the horizontal axis,
+as in figure \@ref(fig:supportforclosestofninverse).
+
+```{r supportforclosestofninverse,echo=FALSE,fig.cap="Log-likelihood for n (inverted x axis)"}
+n <- 1:100000
+x <- (bearing(RHg,LOg)-bearing(RHg,ECg))/180
+S <- function(n){log(n) + (n-1)*log(1-x)}
+nmax <- -1/log(1-x)
+plot(1/n,S(n) - S(nmax),xlab="1/n",log="x",ylab="support",type="l",lwd=3,main="likelihood function for n")
+abline(v=nmax,lty=2)
+abline(h=c(0,-2))
+abline(v=1,col='red')
+text(1.5,-5,"null",col="red")
+```
+
+We can go on to use the likelihood function shown in figure
+\@ref(fig:supportforclosestofn) to create a credible interval based on
+two units of support:
+
+```{r credibleclosestofn}
+f <- function(n){S(n)-S(nmax)+2}  # x a root of f() means S(x)=S(nmax)-2
+c(uniroot(f,c(1,9000))$root,uniroot(f,c(8000,1e5))$root)
+```
+
+We can be reasonably confident that Ted considered more than 437
+students but fewer than 37549 students.
+
+**Note on asymptotic behaviour** Above we used calculus to find
+$\hat{n}$, but equally we could consider $f(n)$ restricted to the
+positive integers; we have $f(n+1)/f(n)=(1+1/n)(1-x)$.  This would
+suggest that the maximum value of $f(n)$ would be $\lceil
+1/x-1\rceil$.  Although this looks very different from the calculus
+value of $-\log(1-x)^{-1}$ we can observe that
+
+$$-\log(1-x)^{-1}=\frac{1}{x}-\frac{1}{2}-\frac{x}{12} + \mathcal{O}(x^2)$$
+
+So, neglecting terms of first or higher order in $x$ (!) we see the
+two values for $\hat{n}$ are $\frac{1}{x}-\frac{1}{2}$ via calculus,
+and $\lceil\frac{1}{x}-1\rceil$ via integers: close enough.
+
+
+
 # Summary of statistical analyses
 
 For an observed angle of $x\in[0,1]$, where $x$ is understood to be
@@ -864,7 +883,7 @@ _very_ slowly with decreasing $x$, although formally it does tend to
 infinity as $x\longrightarrow 0$.  Thus $\log(-\log 1.2\times
 10^{-4})\simeq 2.2$, but for example $\log(-\log 10^{-10})\simeq 3.13$
 and $\log(-\log 10^{-20})\simeq 3.82$.  We can plot Support functions
-(that is, the support for a maximum likelihood hypothesis agains a
+(that is, the support for a maximum likelihood hypothesis against its
 null) for $x$, shown in figure \@ref(fig:plotthreesupports).
 
 ```{r plotthreesupports,fig.cap="Support curves for the three models: note logarithmic x axis",echo=FALSE}
