@@ -7,7 +7,7 @@
    viewBox="0 0 92.583519 98.20916"
    version="1.1"
    id="svg5"
-   inkscape:version="1.2 (dc2aeda, 2022-05-15)"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
    sodipodi:docname="EC_LO_RH.svg"
    inkscape:export-filename="EC_LO_RH.png"
    inkscape:export-xdpi="1000"
@@ -28,14 +28,15 @@
      inkscape:document-units="mm"
      showgrid="true"
      inkscape:zoom="2.8973711"
-     inkscape:cx="224.85901"
-     inkscape:cy="220.88989"
-     inkscape:window-width="1777"
-     inkscape:window-height="1118"
-     inkscape:window-x="446"
-     inkscape:window-y="92"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="layer1">
+     inkscape:cx="222.27046"
+     inkscape:cy="193.96894"
+     inkscape:window-width="1854"
+     inkscape:window-height="1011"
+     inkscape:window-x="66"
+     inkscape:window-y="32"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     inkscape:lockguides="true">
     <inkscape:grid
        type="xygrid"
        id="grid13450"
@@ -190,14 +191,14 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:2.11667px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
-       x="34.926991"
-       y="167.00407"
+       x="32.977669"
+       y="166.89705"
        id="text13035"><tspan
          sodipodi:role="line"
          id="tspan13033"
          style="font-size:2.11667px;stroke-width:0.264583"
-         x="34.926991"
-         y="167.00407">15m</tspan></text>
+         x="32.977669"
+         y="166.89705">38.4m</tspan></text>
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 32.033285,152.13774 2.284084,-1.33544 -1.335439,-2.28408"
