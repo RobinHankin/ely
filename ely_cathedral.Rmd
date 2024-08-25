@@ -653,7 +653,11 @@ and LO, and consider a randomly chosen point P.  Observe that this
 approach contains zero selection bias: we are not considering any
 selection that Ted might have carried out.
 
-There are three different alternative hypotheses one might entertain:
+The angle we will use for LO-RH-EC is 0.000378 (NB in the following,
+angles are scaled so that the distribution is the interval $[0,1]$ and
+_not_ $[0,\pi]$ or $[0,2\pi)$: we will use $x=1.2\times 10^{-4}$ from
+now on..  There are at least three different ways to perform
+statistical analysis on this result:
 
 * restricted to $\delta\theta$
 * beta distribution
@@ -661,14 +665,11 @@ There are three different alternative hypotheses one might entertain:
 
 I will analyse each in turn.
 
-NB: angles are scaled so that the distribution is the interval $[0,1]$
-and _not_ $[0,\pi]$ or $[0,2\pi)$.
-
 ## Restricted to small angles
 
-One might construct a different alternative as follows.  We consider
+One might proceed as follows.  We consider
 hypothesis $H_\theta$, that is, Ted chooses students randomly with
-angular separation $\leqslant\theta$ (here, $\theta$ is our object of
+scaled angular separation $\leqslant\theta$ (here, $\theta$ is our object of
 inference).  That is, he chooses a value of
 $\theta\in\left[0,1\right]$ and subsequently identifies a student with
 angular separation $\leqslant\theta$.  He then asks for their exact
@@ -681,11 +682,11 @@ $$
 0    & \theta < x
 \end{array}\right.$$
 
-(where $x\simeq 1.2\times 10^{-4}$ is the $p$-value above); see figure
-\@ref(fig:plotclosestofn).  With this, the maximum likelihood estimate
-$\hat{\theta}$ for $\theta$ will be $x$; choosing a student from
-anywhere on the planet corresponds to $H_1$.  The likelihood ratio
-will be given by
+(where $x\simeq 1.2\times 10^{-4}$ is the scaled angle LO-RH-EC
+above); see figure \@ref(fig:plotclosestofn).  With this, the maximum
+likelihood estimate $\hat{\theta}$ for $\theta$ will be $x$; choosing
+a student from anywhere on the planet corresponds to $H_1$.  The
+likelihood ratio will be given by
 
 $$
 \frac{
@@ -763,30 +764,15 @@ text(0.94,-4,"null",col="red")
 
 ### Closest among $n$
 
-A reasonable value for a $p$-value would be to calculate the
-probability that a randomly chosen point `P` on the earth has angle
-`EC-P-LO` smaller than `EC-RH-LO` (which would result in `RH-P`
-passing closer to `LO` than `RH-EC` does).  Using `geosphere`, first
-with `f=0` for a spherical earth and then using the default value from
-WGS-84:
-
-```{r closestofn}
-c(bearing(RHg,LOg,f=0)-bearing(RHg,ECg,f=0),
-bearing(RHg,LOg)-bearing(RHg,ECg))/180
-```
-
-(dividing by $180$ to give a $[0,1]$ range).  Both give a $p$-value of
-about $1.2\times 10^{-4}$, strong grounds to reject our null.  We will
-use $x=1.2\times 10^{-4}$ exactly from now on.  But what inference can
-we draw from this?  One probability model might be as follows.
-Consider $n$ randomly chosen points on the sphere and our observation
-comprises the smallest (absolute) bearing $x$ from `LO-EC`.  The
-likelihood function for $n$, that is,
-$\operatorname{Prob}\left(x\mid n\right)$ would be $\propto
-n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the $p$-value
-above.  The maximum likelihood estimate for $n$ would be
-$\hat{n}=-\log(1-x)^{-1}\simeq 8334$.  The likelihood ratio
-(against a null of $n=1$) would be
+One probability model might be as follows.  Ted chooses an integer $n$
+[this is our object of inference] and then considers $n$ randomly
+chosen points on the sphere: our observation comprises the smallest
+(absolute) bearing $x\in [0,1)$ from `LO-EC`.  The likelihood function
+for $n$, that is, $\operatorname{Prob}\left(x\mid n\right)$ would be
+$\propto n(1-x)^{n-1}$, where $x\simeq 1.2\times 10^{-4}$ is the
+scaled angle above.  The maximum likelihood estimate for $n$ would be
+$\hat{n}=-\log(1-x)^{-1}\simeq 8334$.  The likelihood ratio (against a
+null of $n=1$) would be
 
 $$
 \frac{
