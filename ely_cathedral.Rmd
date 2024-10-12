@@ -470,140 +470,48 @@ with `geosphere`.
 # Ellipsoidal earth
 
 
-Now, introduce an ellipsoidal earth.  We will use WGS-84, and assume
-that the latitude given by Google Maps is geodetic latitude.  Most of
-the calculations are set to `echo=FALSE` as the technical details are
-rather prolix.
+Now, introduce an ellipsoidal earth.  We will use WGS-84 as
+implemented by the `geosphere` package, and assume that the latitude
+given by Google Maps is geodetic latitude.
 
-```{r, ellipsoidalearth,echo=FALSE}
-  f <- 1/298.257223563    # WGS-84
-
-
-lambert_distance <- function(p1,p2){
-
-
-  s <- gcd(p1,p2)
-  ## *reduced* latitude:
-  b1 <- atan((1-f)*tan(p1[1]))
-  b2 <- atan((1-f)*tan(p2[1]))
-
-  P <- (b1+b2)/2
-  Q <- (b1-b2)/2
-  X <- (s-sin(s))* (sin(P)*cos(Q)/cos(s/2))^2
-  Y <- (s+sin(s))* (cos(P)*sin(Q)/sin(s/2))^2
-
-  return(s-f*(X+Y)/2)
-}
-
-vincenty <- function(p1,p2){ # p1 and p2 are point 1 and point 2, (geodetic) latitude and longitude
-
-  a <- 6378137.0 # equatorial radius from WGS-84   (meters)
-  f <- 1/298.257223563 #  WGS-84
-
-  b <- (1-f)*a  # polar radius from WGS-84
-
-  phi1 <- p1[1]  # latitude of p1
-  L1 <- p1[2]    # longitude of p1
-
-  phi2 <- p2[1]  # latitude of p2
-  L2 <- p2[2]    # longitude of p2
-
-  U1 <- atan((1-f)*tan(phi1))
-  U2 <- atan((1-f)*tan(phi2))
-
-  L <- L2-L1
-  lambda <- L2-L1  
-
-  for(i in 1:10){
-    sinsig <- sqrt(
-    (cos(U2)*sin(lambda))^2 + (cos(U1)*sin(U2)-sin(U1)*cos(U2)*cos(lambda))^2)
-    cossig <- sin(U1)*sin(U2) + cos(U1)*cos(U2)*cos(lambda)
-    sigma <- atan2(sinsig,cossig)
-
-    alpha <- asin(cos(U1)*cos(U2)*sin(lambda)/sin(sigma))
-    sigma_m <- acos(cos(sigma) - 2*sin(U1)*sin(U2)/cos(alpha)^2 )/2
-
-    C <- (f/16)*cos(alpha)^2*(4+f*(4-3*cos(alpha)^2))
-
-    lambda <- L - (1-C)*f*sin(alpha) * (sigma + C*sin(sigma)*(cos(2*sigma_m) + C*cos(sigma)*(-1+2*cos(2*sigma_m)^2)))
-  #  dput(lambda)
-
-  }
-  
-  u <- abs(  cos(alpha) * sqrt((a^2-b^2)/b^2)   )
-  A <- 1 + u^2/16834*(4096 + u^2*(-768 + u^2*(320-175*u^2)))
-  B <- u^2/1024*(256 + u^2*(-128+u^2*(74 - 47*u^2)))
-  delta_sigma <- B*sin(sigma)*(cos(2*sigma_m) + B/4*(cos(sigma)*(-1+2*cos(2*sigma_m)^2) - (B/6) *cos(2*sigma_m)*(-3+4*sin(sigma)^2)*(-3+4*cos(2*sigma_m)^2)))
-  s <- b*A*(sigma - delta_sigma)
-
-  alpha1 <- atan2(cos(U2)*sin(lambda), +cos(U1)*sin(U2)-sin(U1)*cos(U2)*cos(lambda))
-  alpha2 <- atan2(cos(U1)*sin(lambda), -sin(U1)*cos(U2)+cos(U1)*sin(U2)*cos(lambda))
-  return(c(alpha1,alpha2,s))
-}
-```
-
-
-```{r uselambertdistance}
-lamb <- c(
- lambert_distance(EC,LO),
- lambert_distance(LO,RH),
- lambert_distance(RH,EC))
-names(lamb) <- c("EC_LO","LO_RH","RH_EC")
-lamb
-```
-
-Above, `lamb` refers to the Lambert distance function, defined on the
-ellipsoidal earth.  The distances are very similar to those
-calculated on the great circle:
-
-```{r lambgreatcirc}
-rbind(lamb, gc_dist)
-(lamb - gc_dist) * RADIUS_OF_EARTH
-```
-
-So the ellipsoidal distances between the locations are less than the
-spherical distances by about 10-30 meters---very small compared with
-40km great circle distances (although most of the difference is due to
-the local radius differing from the mean radius of the earth at this
-point).  We can go on to use function `vincenty()` to solve the
-inverse problem which will give estimates for the acute angles in the
-`EC-LO-RH` triangle.  The "inverse problem" is a standard geodetic
-calculation: given two points, calculate the path between them of
-minimal length.  We are interested in the initial and final azimuth of
-the path.  We can also compare the results with `angles_g`, created
-with `geodesic_inverse()` from the `geosphere` package.
-
-```{r,geospherecomp,echo=FALSE}
+```{r,geospherecomp,echo=TRUE}
 angles_g <- 
 c(
-  geodesic_inverse(LOg,ECg)[1,2]-geodesic_inverse(LOg,RHg)[1,2], 
-  geodesic_inverse(RHg,LOg)[1,2]-geodesic_inverse(RHg,ECg)[1,2], 
+       geodesic_inverse(LOg,ECg)[1,2]-geodesic_inverse(LOg,RHg)[1,2], 
+       geodesic_inverse(RHg,LOg)[1,2]-geodesic_inverse(RHg,ECg)[1,2], 
   360-(geodesic_inverse(ECg,LOg)[1,2]-geodesic_inverse(ECg,RHg)[1,2])
   )*pi/180
+names(angles_g) <- c("RH-LO-EC", "EC-RH-LO","RH-EC-LO")
+angles_g
 ```
 
+We can now compare `angles_g` (ellipsoidal) with `angles` (spherical):
 
-```{r usevincenty}
-c(vincenty(RH,LO)[1],vincenty(RH,EC)[1]) # azimuths of paths RH-LO and RH-EC
-angles_gcd <- angles  # angles of EC-LO-RH on spherical earth
-angles_lamb <- c(     # angles of EC-LO-RH on ellipsoidal earth
-  vincenty(LO,EC)[1]-vincenty(LO,RH)[1],
-  vincenty(RH,LO)[1]-vincenty(RH,EC)[1],
-  2*pi-(vincenty(EC,LO)[1]-vincenty(EC,RH)[1]))
-names(angles_lamb) <- c("EC_LO_RH","LO_RH_EC","RH_EC_LO")
-angles_lamb
+```{r showgcd}
+rbind(angles_g, angles)
 ```
 
-We can now compare `angles_lamb` and `angles_g` (ellipsoidal; my
-figures and `geosphere` respectively) with `angles_gcd` (spherical):
+We see that the acute angles under an ellipsoidal earth are slightly
+smaller than under the spherical earth, but all three are in close
+agreement.  We can now give distances in meters between the three
+points:
 
-```{r userbind}
-rbind(angles_lamb,angles_g,angles_gcd)
+```{r usedistgeo}
+jj <- rbind(
+c(`EC-LO` = distGeo(ECg,LOg), `LO-RH` = distGeo(LOg,RHg), `EC-RH` = distGeo(ECg,RHg)),
+gc_dist*RADIUS_OF_EARTH)
+dimnames(jj) <- list(shape = c("ellipsoidal","spherical"), c("EC-LO", "LO-RH", "EC-RH"))
+jj
 ```
 
-We see that the angles under an ellipsoidal earth are slightly bigger
-than under the spherical earth, but all three are in close agreement.
-
+So the ellipsoidal distances between the locations differ from the
+spherical distances by about 10-30 meters---very small compared with
+40km great circle distances.  Further work would include calculating
+diagnostics for the acuteness of the triangle using an ellipsoidal
+earth.  It would be interesting to see what the area of the triangle
+and the closest distance between line RH-EC produced and LO would be
+under WGS84 (these were about 0.225 square kilometers and 15m on a
+spherical earth).
 
 # Statistical analysis
 
