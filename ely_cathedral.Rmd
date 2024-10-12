@@ -226,9 +226,9 @@ The angles are given by the cosine rule:
 ```{r,cosinerule}
 f <- function(d){acos((d[1]^2+d[2]^2-d[3]^2)/(2*d[1]*d[2]))} # the cosine rule in R
 angles_plane <- c(
-	     "EC-LO-RH" = f(dist_plane[c(3,1,2)]),
-             "LO-RH-EC" = f(dist_plane[c(2,3,1)]),
-	     "RH-EC-LO" = f(dist_plane[c(1,2,3)])
+   "EC-LO-RH" = f(dist_plane[c(3,1,2)]),
+   "LO-RH-EC" = f(dist_plane[c(2,3,1)]),
+   "RH-EC-LO" = f(dist_plane[c(1,2,3)])
 )
 angles_plane
 ```
@@ -320,7 +320,7 @@ gc_dist * RADIUS_OF_EARTH
 
 As a verification, we may compare these results with those of the
 `geosphere` package (generally, variables calculated with the
-`geosphere` package end with `g` or `_g`).
+`geosphere` package end with `g` or `_g`).  
 
 ```{r,usegeosphere}
 RHg <- rev(RH)*180/pi
@@ -334,10 +334,11 @@ RH_ECg = distCosine(RHg,ECg))
 rbind(gc_dist=gc_dist*RADIUS_OF_EARTH,gc_distg,diff=gc_dist*RADIUS_OF_EARTH-gc_distg)
 ```
 
-(the above result is given in meters).  Above we see two things:
+(the above result is given in meters; function `distCosine()` uses
+spherical [not ellipsoidal] geometry).  Above we see two things:
 firstly, that Ted lives about 11.77km from EC and I live about 29.1km
 from EC; and secondly (from the third line), that the calculations are
-in approximate agreement, differing by $2\times 10^{-7}\,{\mathrm m}$,
+in very close agreement, differing by $2\times 10^{-7}\,{\mathrm m}$,
 or about $0.2\,\mu{\mathrm m}$.  Now calculate the sines and cosines:
 
 ```{r,sinecos}
@@ -509,6 +510,7 @@ c(`EC-LO` = distGeo(ECg,LOg), `LO-RH` = distGeo(LOg,RHg), `EC-RH` = distGeo(ECg,
 dimnames(jj) <- list(
     c("plane","spherical","ellipsoidal"),
     c("EC-LO", "LO-RH", "EC-RH"))
+jj <- rbind(jj,`sph-ell` = apply(jj,2,function(x){abs(x[3]-x[2])}))
 jj
 ```
 
