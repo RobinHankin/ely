@@ -256,6 +256,18 @@ closest_dist/sin(atan(RH_t[2]/RH_t[1])) * 1.0936
 (above, we mutliply by 1.0936 to convert to yards) showing reasonably
 close agreement with Ted's value of about a hundred yards.
 
+We may use Heron's formula $\sqrt{s(a-a)(s-b)(s-c)}$ for the area of
+the triangle:
+
+```{r heronsformula}
+s <- sum(dist_plane)/2
+area_plane <- sqrt(s * prod(s - dist_plane))
+area_plane
+area_plane/1e6  # square km
+```
+
+Above, we see that the area of the triangle is about one square
+kilometer.
 
 # Spherical geometry
 
@@ -522,6 +534,13 @@ earth.  It would be interesting to see what the area of the triangle
 and the closest distance between line RH-EC produced and LO would be
 under WGS84 (these were about 0.225 square kilometers and 15m on a
 spherical earth).
+
+
+```{r areapolygon}
+area # plane
+areaPolygon(rbind(ECg, RHg, LOg)) / 1e6 
+```
+
 
 # Statistical analysis
 
